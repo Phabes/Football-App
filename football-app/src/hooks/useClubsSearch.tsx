@@ -1,0 +1,40 @@
+import { useEffect, useState } from "react";
+import { Club } from "../model/club";
+
+export const useClubsSearch = (query: string, pageNumber: number) => {
+  const [loading, setLoading] = useState<boolean>(true);
+  const [error, setError] = useState<boolean>(true);
+  const [clubs, setClubs] = useState<Array<Club>>([]);
+  const [hasMore, setHasMore] = useState<boolean>(true);
+
+  const controller = new AbortController();
+  const signal = controller.signal;
+
+  useEffect(() => {
+    const requestOptions = {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ query: query, pageNumber: pageNumber }),
+      signal: signal,
+    };
+
+    setLoading(true);
+    setError(false);
+    fetch("http://localhost:5000/clubs", requestOptions)
+      .then((response) => response.json())
+      .then((data) => {
+        setTimeout(() => {
+          setClubs((prevClubs) => {
+            return [...prevClubs, ...data.clubs];
+          });
+          setHasMore(data.hasMore);
+          setLoading(false);
+        }, 1000);
+      })
+      .catch((error: any) => setError(true));
+    return () => {
+      controller.abort();
+    };
+  }, [query, pageNumber]);
+  return { loading, error, clubs, hasMore };
+};

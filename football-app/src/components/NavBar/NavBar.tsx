@@ -1,21 +1,23 @@
-import React, { Component } from "react";
+import { Link } from "react-router-dom";
 import "./NavBar.css";
 
-class NavBar extends Component {
-  componentDidMount(): void {
-    const requestOptions = {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-    };
-    fetch("http://localhost:5000/test", requestOptions)
-      .then((response) => response.json())
-      .then((data) => {
-        console.log(data);
-      });
-  }
-  render() {
-    return <nav>NavBar</nav>;
-  }
-}
+const NavBar = (): JSX.Element => {
+  return (
+    <nav>
+      <Link to="/" className="link">
+        Home
+      </Link>
+      <Link to="/clubs" className="link">
+        Clubs
+      </Link>
+      <Link to="/2d" className="link">
+        2D
+      </Link>
+      <Link to="/3d" className="link">
+        3D
+      </Link>
+    </nav>
+  );
+};
 
 export default NavBar;
