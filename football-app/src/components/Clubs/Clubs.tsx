@@ -11,7 +11,7 @@ const Clubs = (): JSX.Element => {
 
   const observer = useRef<HTMLDivElement>(null) as any;
   const lastClubElementRef = useCallback(
-    (node: any) => {
+    (node: HTMLDivElement) => {
       if (loading) return;
       if (observer.current) observer.current.disconnect();
       observer.current = new IntersectionObserver((entries) => {
@@ -24,9 +24,16 @@ const Clubs = (): JSX.Element => {
     [loading, hasMore]
   );
 
+  const searchHandler = (query: string) => {
+    setQuery(query);
+    setPageNumber(0);
+  };
+
   return (
     <div id="clubs">
-      <div id="queryLabel">INPUT</div>
+      <div id="queryLabel">
+        <input value={query} onChange={(e) => searchHandler(e.target.value)} />
+      </div>
       <div id="clubsList">
         {clubs.map((club, index) => {
           if (clubs.length != index + 1)

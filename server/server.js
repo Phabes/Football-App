@@ -18,10 +18,15 @@ const itemsPerPage = 20;
 
 app.post("/clubs", (req, res) => {
   const { query, pageNumber } = req.body;
+  const filteredClubs = clubs.filter((club) => {
+    return club.name.includes(query);
+  });
   const start = pageNumber * itemsPerPage;
-  const end = Math.min((pageNumber + 1) * itemsPerPage, clubs.length);
-  const wantedClubs = clubs.slice(start, end);
-  res.status(200).json({ clubs: wantedClubs, hasMore: end < clubs.length });
+  const end = Math.min((pageNumber + 1) * itemsPerPage, filteredClubs.length);
+  const wantedClubs = filteredClubs.slice(start, end);
+  res
+    .status(200)
+    .json({ clubs: wantedClubs, hasMore: end < filteredClubs.length });
 });
 
 app.listen(PORT, () => {
