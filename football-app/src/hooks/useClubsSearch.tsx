@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { Club } from "../model/club";
+import { Club } from "../model/Club";
 
 export const useClubsSearch = (query: string, pageNumber: number) => {
   const [loading, setLoading] = useState<boolean>(true);

@@ -14,6 +14,7 @@ for (let i = 0; i < 45; i++) {
     name: `club_name_${i}`,
   });
 }
+const matches = [];
 const itemsPerPage = 20;
 
 app.post("/clubs", (req, res) => {
@@ -27,6 +28,50 @@ app.post("/clubs", (req, res) => {
   res
     .status(200)
     .json({ clubs: wantedClubs, hasMore: end < filteredClubs.length });
+});
+
+app.post("/getNotFullMatches", (req, res) => {
+  const filteredMatches = matches.filter((match) => {
+    return match.secondTeam == null;
+  });
+  res.status(200).json({ matches: filteredMatches });
+});
+
+app.post("/addMatch", (req, res) => {
+  const { id } = req.body;
+  const alreadyUsed = matches.some((match) => {
+    return match.firstTeam == clubs[id] || match.secondTeam == clubs[id];
+  });
+  if (!alreadyUsed) {
+    const footballMatch = {
+      matchID: matches.length,
+      firstTeam: clubs[id],
+      secondTeam: null,
+    };
+    matches.push(footballMatch);
+    res.status(200).json({ success: true });
+  } else {
+    res.status(200).json({ success: false });
+  }
+});
+
+app.post("/setOpponent", (req, res) => {
+  const { matchID, opponentID } = req.body;
+  const alreadyUsed = matches.some((match) => {
+    return (
+      match.firstTeam == clubs[opponentID] ||
+      match.secondTeam == clubs[opponentID]
+    );
+  });
+  if (!alreadyUsed) {
+    matches[matchID].secondTeam = clubs[opponentID];
+    const filteredMatches = matches.filter((match) => {
+      return match.secondTeam != null;
+    });
+    res.status(200).json({ success: true, matches: filteredMatches });
+  } else {
+    res.status(200).json({ success: false });
+  }
 });
 
 app.listen(PORT, () => {

@@ -25,16 +25,20 @@ const NavBar = (): JSX.Element => {
   return (
     <nav>
       <div id="links" style={{ display: show }}>
-        <Link to="/" className="link">
+        <Link to="/" className="link" onClick={() => windowResizeHandler()}>
           Home
         </Link>
-        <Link to="/clubs" className="link">
+        <Link
+          to="/clubs"
+          className="link"
+          onClick={() => windowResizeHandler()}
+        >
           Clubs
         </Link>
-        <Link to="/2d" className="link">
+        <Link to="/2d" className="link" onClick={() => windowResizeHandler()}>
           2D
         </Link>
-        <Link to="/3d" className="link">
+        <Link to="/3d" className="link" onClick={() => windowResizeHandler()}>
           3D
         </Link>
       </div>
