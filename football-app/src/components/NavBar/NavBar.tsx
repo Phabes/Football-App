@@ -4,10 +4,10 @@ import "./NavBar.css";
 
 const NavBar = (): JSX.Element => {
   const [active, setActive] = useState<boolean>(false);
-  function windowResizeHandler() {
+  const windowResizeHandler = () => {
     if (window.innerWidth > 800) setActive(true);
     else setActive(false);
-  }
+  };
 
   useEffect(() => {
     windowResizeHandler();

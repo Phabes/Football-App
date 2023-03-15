@@ -30,7 +30,11 @@ app.post("/clubs", (req, res) => {
     .json({ clubs: wantedClubs, hasMore: end < filteredClubs.length });
 });
 
-app.post("/addMatch", (req, res) => {
+app.get("/match", (req, res) => {
+  res.status(200).json({ matches: matches, hasMore: false });
+});
+
+app.post("/match", (req, res) => {
   const { match } = req.body;
   const alreadyUsed = matches.some((singleMatch) => {
     return (

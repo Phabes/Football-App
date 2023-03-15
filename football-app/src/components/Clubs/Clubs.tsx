@@ -1,4 +1,4 @@
-import { useCallback, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { PulseLoader } from "react-spinners";
 import { useClubsSearch } from "../../hooks/useClubsSearch";
 import { Club } from "../../model/Club";
@@ -56,7 +56,7 @@ const Clubs = (): JSX.Element => {
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ match: match }),
     };
-    fetch("http://localhost:5000/addMatch", requestOptions)
+    fetch("http://localhost:5000/match", requestOptions)
       .then((response) => response.json())
       .then((data) => {
         const { success } = data;
@@ -74,15 +74,19 @@ const Clubs = (): JSX.Element => {
         <MatchLabel match={match} playMatchHandle={() => playMatch(match)} />
       )}
       <div id="clubs">
-        {!loading && (
-          <div id="queryLabel">
-            <input
-              value={query}
-              placeholder="Search Club"
-              onChange={(e) => searchHandler(e.target.value)}
-            />
-          </div>
-        )}
+        <div id="queryLabel">
+          <input
+            value={query}
+            placeholder="Search Club"
+            autoFocus
+            onBlur={(e) => {
+              e.target.focus({
+                preventScroll: true,
+              });
+            }}
+            onChange={(e) => searchHandler(e.target.value)}
+          />
+        </div>
         <div id="clubsList">
           {clubs.map((club, index) => {
             if (clubs.length != index + 1)
