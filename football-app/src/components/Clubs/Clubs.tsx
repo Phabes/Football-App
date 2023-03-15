@@ -10,8 +10,8 @@ import "./Clubs.css";
 const Clubs = (): JSX.Element => {
   const [query, setQuery] = useState<string>("");
   const [pageNumber, setPageNumber] = useState<number>(0);
-  const [team, setTeam] = useState<Club | null>(null);
-  const [matches, setMatches] = useState<Array<Match>>([]);
+  const [selectedTeams, setSelectedTeams] = useState<Array<Club>>([]);
+  const [match, setMatch] = useState<Match | null>(null);
   const { loading, error, clubs, hasMore } = useClubsSearch(query, pageNumber);
 
   const observer = useRef<HTMLDivElement>(null) as any;
@@ -32,82 +32,82 @@ const Clubs = (): JSX.Element => {
   const searchHandler = (query: string) => {
     setQuery(query);
     setPageNumber(0);
-    setTeam(null);
   };
 
-  const getNotFullMatches = (club: Club) => {
-    setTeam(club);
+  const selectClub = (club: Club) => {
+    setSelectedTeams((prevSelecteTeams) => {
+      if (prevSelecteTeams.length == 2) prevSelecteTeams.shift();
+      if (!prevSelecteTeams.includes(club)) {
+        prevSelecteTeams.push(club);
+        const match: Match = {
+          firstTeam: prevSelecteTeams[0],
+        };
+        if (prevSelecteTeams.length == 2)
+          match.secondTeam = prevSelecteTeams[1];
+        setMatch(match);
+      }
+      return prevSelecteTeams;
+    });
+  };
+
+  const playMatch = (match: Match) => {
     const requestOptions = {
       method: "POST",
       headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ match: match }),
     };
-    fetch("http://localhost:5000/getNotFullMatches", requestOptions)
+    fetch("http://localhost:5000/addMatch", requestOptions)
       .then((response) => response.json())
       .then((data) => {
-        setMatches(data.matches);
+        const { success } = data;
+        if (success) {
+          setSelectedTeams([]);
+          setMatch(null);
+        }
       })
       .catch((error: any) => {});
   };
 
-  const opponentChoosed = (match: Match) => {
-    const requestOptions = {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ matchID: match.matchID, opponentID: team?.id }),
-    };
-    fetch("http://localhost:5000/setOpponent", requestOptions)
-      .then((response) => response.json())
-      .then((data) => {
-        console.log(data);
-        setMatches([]);
-      })
-      .catch((error: any) => {})
-      .finally(() => setTeam(null));
-  };
-
   return (
-    <div id="clubs">
-      {matches.length > 0 &&
-        matches.map((match, index) => {
-          return (
-            <MatchLabel
-              key={"match" + index}
-              match={match}
-              clickHandle={() => opponentChoosed(match)}
+    <div id="clubsFlow">
+      {match != null && (
+        <MatchLabel match={match} playMatchHandle={() => playMatch(match)} />
+      )}
+      <div id="clubs">
+        {!loading && (
+          <div id="queryLabel">
+            <input
+              value={query}
+              placeholder="Search Club"
+              onChange={(e) => searchHandler(e.target.value)}
             />
-          );
-        })}
-      <div id="queryLabel">
-        <input
-          value={query}
-          placeholder="Search Club"
-          onChange={(e) => searchHandler(e.target.value)}
-        />
-      </div>
-      <div id="clubsList">
-        {clubs.map((club, index) => {
-          if (clubs.length != index + 1)
-            return (
-              <ClubLabel
-                key={"club" + index}
-                club={club}
-                clickHandle={() => getNotFullMatches(club)}
-              />
-            );
-          else
-            return (
-              <ClubLabel
-                key={index}
-                club={club}
-                clickHandle={() => getNotFullMatches(club)}
-                ref={lastClubElementRef}
-              />
-            );
-        })}
-        {loading && (
-          <PulseLoader color="rgb(0, 195, 255)" speedMultiplier={0.7} />
+          </div>
         )}
-        {error && <div>Error</div>}
+        <div id="clubsList">
+          {clubs.map((club, index) => {
+            if (clubs.length != index + 1)
+              return (
+                <ClubLabel
+                  key={"club" + index}
+                  club={club}
+                  clickHandle={() => selectClub(club)}
+                />
+              );
+            else
+              return (
+                <ClubLabel
+                  key={index}
+                  club={club}
+                  clickHandle={() => selectClub(club)}
+                  ref={lastClubElementRef}
+                />
+              );
+          })}
+          {loading && (
+            <PulseLoader color="rgb(0, 195, 255)" speedMultiplier={0.7} />
+          )}
+          {error && <div className="error">Error</div>}
+        </div>
       </div>
     </div>
   );

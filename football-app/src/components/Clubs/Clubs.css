@@ -1,12 +1,20 @@
+#clubsFlow {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
 #clubs {
   display: flex;
   align-items: center;
   flex-direction: column;
   margin-top: 10px;
+  width: 100%;
 }
 
 #queryLabel {
   display: flex;
+  justify-content: center;
   align-items: center;
   width: 50%;
   height: 50px;
@@ -19,5 +27,6 @@
 #clubsList {
   display: flex;
   flex-direction: column;
+  align-items: center;
   width: 50%;
 }

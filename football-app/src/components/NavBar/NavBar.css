@@ -2,6 +2,7 @@ nav {
   position: sticky;
   top: 0;
   width: 100%;
+  z-index: 2;
 }
 
 #links {
@@ -13,6 +14,7 @@ nav {
   position: relative;
   background-color: rgb(54, 114, 204);
   border-radius: 0 0 10px 10px;
+  box-shadow: 0 1px 10px black;
 }
 
 .link {

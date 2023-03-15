@@ -29,6 +29,13 @@ const NavBar = (): JSX.Element => {
           Home
         </Link>
         <Link
+          to="/matches"
+          className="link"
+          onClick={() => windowResizeHandler()}
+        >
+          Matches
+        </Link>
+        <Link
           to="/clubs"
           className="link"
           onClick={() => windowResizeHandler()}
