@@ -1,75 +1,60 @@
-.matchOverflow {
-  position: fixed;
-  bottom: 10px;
-  right: 10px;
+.matchLabel {
   display: flex;
-  justify-content: center;
-}
-
-.match {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  width: 200px;
-  padding: 15px;
-  font-size: 18px;
-  font-weight: bold;
-  border: 5px dashed rgb(0, 195, 255);
-  border-radius: 10px;
-}
-
-.matchCreator {
-  font-size: 24px;
+  padding: 10px 0;
   margin-bottom: 10px;
-  color: rgb(91, 213, 64);
-}
-
-.team {
-  display: flex;
-  justify-content: space-between;
   width: 100%;
+  font-size: 20px;
+  box-shadow: 0 1px 5px black;
 }
 
-.teamSituation {
+.matchFirstClubName,
+.matchSecondClubName {
   display: flex;
-  flex: 1;
+  align-items: center;
+  flex: 3;
 }
 
-.teamName {
+.matchFirstClubName {
+  justify-content: flex-end;
+  margin-right: 50px;
+}
+
+.matchSecondClubName {
+  margin-left: 50px;
+}
+
+.versus {
+  display: flex;
+  align-items: center;
+  color: rgb(40, 215, 133);
+  font-size: 30px;
+}
+
+.watchMatch {
   display: flex;
   flex: 2;
   justify-content: center;
-}
-
-.playMatch {
-  margin-top: 10px;
-  padding: 5px 10px;
-  border-radius: 5px;
-  background-color: rgb(40, 215, 133);
+  padding: 5px;
+  margin-right: 5px;
   cursor: pointer;
+  background-color: rgb(54, 114, 204);
+  border-radius: 5px;
   transition: background-color 0.4s;
 }
 
-.playMatch:hover {
-  background-color: rgb(91, 213, 64);
-}
-
-@media (max-width: 1100px) {
-  .matchOverflow {
-    position: sticky;
-    background-color: rgb(81, 81, 81);
-    width: 100%;
-    overflow: hidden;
-    top: 50px;
-    bottom: auto;
-    right: auto;
-    padding: 10px 0;
-    box-shadow: 0 1px 10px black;
-  }
+.watchMatch:hover {
+  background-color: rgb(0, 195, 255);
 }
 
 @media (max-width: 800px) {
-  .matchOverflow {
-    top: 0;
+  .watchMatch {
+    flex: 1;
+  }
+
+  .matchFirstClubName {
+    margin-right: 25px;
+  }
+  .matchSecondClubName {
+    margin-left: 25px;
   }
 }

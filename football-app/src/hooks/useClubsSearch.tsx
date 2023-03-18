@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import { Club } from "../model/Club";
+import config from "../config/Config";
 
 export const useClubsSearch = (query: string, pageNumber: number) => {
   const [loading, setLoading] = useState<boolean>(true);
@@ -21,7 +22,7 @@ export const useClubsSearch = (query: string, pageNumber: number) => {
       body: JSON.stringify({ query: query, pageNumber: pageNumber }),
       signal: signal,
     };
-    fetch("http://localhost:5000/clubs", requestOptions)
+    fetch(config.url + "clubs", requestOptions)
       .then((response) => response.json())
       .then((data) => {
         setClubs((prevClubs) => {
@@ -42,5 +43,6 @@ export const useClubsSearch = (query: string, pageNumber: number) => {
     const timeout = setTimeout(getClubsData, 500);
     return () => clearTimeout(timeout);
   }, [query, pageNumber]);
+
   return { loading, error, clubs, hasMore };
 };

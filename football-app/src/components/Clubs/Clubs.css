@@ -30,3 +30,13 @@
   align-items: center;
   width: 50%;
 }
+
+#loader {
+  margin: 50px 0;
+}
+
+@media (max-width: 800px) {
+  #clubsList {
+    width: 70%;
+  }
+}

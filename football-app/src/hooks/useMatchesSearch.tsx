@@ -1,7 +1,8 @@
 import { useEffect, useState } from "react";
 import { Match } from "../model/Match";
+import config from "../config/Config";
 
-export const useMatchesSearch = () => {
+export const useMatchesSearch = (pageNumber: number) => {
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<boolean>(true);
   const [matches, setMatches] = useState<Array<Match>>([]);
@@ -10,17 +11,14 @@ export const useMatchesSearch = () => {
   const controller = new AbortController();
   const signal = controller.signal;
 
-  useEffect(() => {
-    getMatchesData();
-  }, []);
-
   const getMatchesData = () => {
     const requestOptions = {
-      method: "GET",
+      method: "POST",
       headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ pageNumber: pageNumber }),
       signal: signal,
     };
-    fetch("http://localhost:5000/match", requestOptions)
+    fetch(config.url + "matches", requestOptions)
       .then((response) => response.json())
       .then((data) => {
         console.log(data);
@@ -35,6 +33,13 @@ export const useMatchesSearch = () => {
       controller.abort();
     };
   };
+
+  useEffect(() => {
+    setLoading(true);
+    setError(false);
+    const timeout = setTimeout(getMatchesData, 500);
+    return () => clearTimeout(timeout);
+  }, [pageNumber]);
 
   return { loading, error, matches, hasMore };
 };

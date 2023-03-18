@@ -8,13 +8,20 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
 const clubs = [];
-for (let i = 0; i < 45; i++) {
+for (let i = 0; i < 120; i++) {
   clubs.push({
     id: i,
     name: `club_name_${i}`,
   });
 }
 const matches = [];
+for (let i = (clubs.length - 2) / 2 + 1; i < clubs.length - 2 + 1; i += 2) {
+  matches.push({
+    id: i / 2,
+    firstTeam: clubs[i],
+    secondTeam: clubs[i + 1],
+  });
+}
 const itemsPerPage = 20;
 
 app.post("/clubs", (req, res) => {
@@ -30,11 +37,17 @@ app.post("/clubs", (req, res) => {
     .json({ clubs: wantedClubs, hasMore: end < filteredClubs.length });
 });
 
-app.get("/match", (req, res) => {
-  res.status(200).json({ matches: matches, hasMore: false });
+app.post("/matches", (req, res) => {
+  const { pageNumber } = req.body;
+  const start = pageNumber * itemsPerPage;
+  const end = Math.min((pageNumber + 1) * itemsPerPage, matches.length);
+  const wantedMatches = matches.slice(start, end);
+  res
+    .status(200)
+    .json({ matches: wantedMatches, hasMore: end < matches.length });
 });
 
-app.post("/match", (req, res) => {
+app.post("/newMatch", (req, res) => {
   const { match } = req.body;
   const alreadyUsed = matches.some((singleMatch) => {
     return (
@@ -46,7 +59,7 @@ app.post("/match", (req, res) => {
   });
   if (!alreadyUsed) {
     const footballMatch = {
-      matchID: matches.length,
+      id: matches.length,
       firstTeam: match.firstTeam,
       secondTeam: match.secondTeam,
     };

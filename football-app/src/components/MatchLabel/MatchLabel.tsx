@@ -1,33 +1,24 @@
+import { forwardRef, Ref } from "react";
 import { Match } from "../../model/Match";
 import "./MatchLabel.css";
 
-const MatchLabel = (props: {
-  match: Match;
-  playMatchHandle: Function;
-}): JSX.Element => {
-  const { firstTeam, secondTeam } = props.match;
-  return (
-    <div className="matchOverflow">
-      <div className="match">
-        <div className="matchCreator">Match Creator</div>
-        <div className="team">
-          <div className="teamSituation">HOME: </div>
-          <div className="teamName">{firstTeam.name}</div>
+const MatchLabel = forwardRef(
+  (
+    props: { match: Match; clickHandle: Function },
+    ref: Ref<HTMLDivElement>
+  ): JSX.Element => {
+    const { match } = props;
+    return (
+      <div ref={ref} className="matchLabel">
+        <div className="matchFirstClubName">{match.firstTeam.name}</div>
+        <div className="versus">VS</div>
+        <div className="matchSecondClubName">{match.secondTeam?.name}</div>
+        <div className="watchMatch" onClick={() => props.clickHandle()}>
+          Watch
         </div>
-        {secondTeam != undefined && (
-          <>
-            <div className="team">
-              <div className="teamSituation">AWAY: </div>
-              <div className="teamName">{secondTeam.name}</div>
-            </div>
-            <div className="playMatch" onClick={() => props.playMatchHandle()}>
-              PLAY
-            </div>
-          </>
-        )}
       </div>
-    </div>
-  );
-};
+    );
+  }
+);
 
 export default MatchLabel;

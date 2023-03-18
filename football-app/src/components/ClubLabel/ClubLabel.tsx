@@ -1,13 +1,13 @@
-import { forwardRef, useState } from "react";
+import { forwardRef, Ref, useState } from "react";
 import { Club } from "../../model/Club";
 import "./ClubLabel.css";
 
 const ClubLabel = forwardRef(
   (
     props: { club: Club; clickHandle: Function },
-    ref: React.Ref<HTMLDivElement>
+    ref: Ref<HTMLDivElement>
   ): JSX.Element => {
-    const { id, name } = props.club;
+    const { name } = props.club;
     return (
       <div ref={ref} className="clubLabel">
         <div className="clubName">{name}</div>

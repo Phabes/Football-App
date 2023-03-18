@@ -1,10 +1,11 @@
-import { useCallback, useEffect, useRef, useState } from "react";
-import { PulseLoader } from "react-spinners";
+import { useCallback, useRef, useState } from "react";
+import PulseLoader from "react-spinners/PulseLoader";
 import { useClubsSearch } from "../../hooks/useClubsSearch";
 import { Club } from "../../model/Club";
 import { Match } from "../../model/Match";
 import ClubLabel from "../ClubLabel/ClubLabel";
-import MatchLabel from "../MatchLabel/MatchLabel";
+import MatchCreator from "../MatchCreator/MatchCreator";
+import config from "../../config/Config";
 import "./Clubs.css";
 
 const Clubs = (): JSX.Element => {
@@ -56,7 +57,7 @@ const Clubs = (): JSX.Element => {
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ match: match }),
     };
-    fetch("http://localhost:5000/match", requestOptions)
+    fetch(config.url + "newMatch", requestOptions)
       .then((response) => response.json())
       .then((data) => {
         const { success } = data;
@@ -71,7 +72,7 @@ const Clubs = (): JSX.Element => {
   return (
     <div id="clubsFlow">
       {match != null && (
-        <MatchLabel match={match} playMatchHandle={() => playMatch(match)} />
+        <MatchCreator match={match} playMatchHandle={() => playMatch(match)} />
       )}
       <div id="clubs">
         <div id="queryLabel">
@@ -100,7 +101,7 @@ const Clubs = (): JSX.Element => {
             else
               return (
                 <ClubLabel
-                  key={index}
+                  key={"club" + index}
                   club={club}
                   clickHandle={() => selectClub(club)}
                   ref={lastClubElementRef}
@@ -108,7 +109,9 @@ const Clubs = (): JSX.Element => {
               );
           })}
           {loading && (
-            <PulseLoader color="rgb(0, 195, 255)" speedMultiplier={0.7} />
+            <div id="loader">
+              <PulseLoader color="rgb(0, 195, 255)" speedMultiplier={0.7} />
+            </div>
           )}
           {error && <div className="error">Error</div>}
         </div>

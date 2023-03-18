@@ -1,0 +1,35 @@
+#clubsFlow {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+#matches {
+  display: flex;
+  align-items: center;
+  flex-direction: column;
+  margin-top: 10px;
+  width: 100%;
+}
+
+#matchesList {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  width: 60%;
+}
+
+#loader {
+  margin: 50px 0;
+}
+
+.error {
+  color: rgb(40, 215, 133);
+  font-size: 30px;
+}
+
+@media (max-width: 1100px) {
+  #matchesList {
+    width: 75%;
+  }
+}
