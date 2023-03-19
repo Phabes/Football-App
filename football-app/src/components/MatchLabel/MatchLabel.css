@@ -39,6 +39,8 @@
   cursor: pointer;
   background-color: rgb(54, 114, 204);
   border-radius: 5px;
+  text-decoration: none;
+  color: #000000;
   transition: background-color 0.4s;
 }
 

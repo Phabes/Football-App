@@ -24,11 +24,6 @@ const Matches = (): JSX.Element => {
     [loading, hasMore]
   );
 
-  const watchMatch = (match: Match) => {
-    console.log("WATCH");
-    console.log(match);
-  };
-
   return (
     <div id="matches">
       {!loading && matches.length == 0 && (
@@ -37,19 +32,12 @@ const Matches = (): JSX.Element => {
       <div id="matchesList">
         {matches.map((match, index) => {
           if (matches.length != index + 1)
-            return (
-              <MatchLabel
-                key={"match" + index}
-                match={match}
-                clickHandle={() => watchMatch(match)}
-              />
-            );
+            return <MatchLabel key={"match" + index} match={match} />;
           else
             return (
               <MatchLabel
                 key={"match" + index}
                 match={match}
-                clickHandle={() => watchMatch(match)}
                 ref={lastMatchElementRef}
               />
             );

@@ -14,6 +14,7 @@ const Clubs = (): JSX.Element => {
   const [selectedTeams, setSelectedTeams] = useState<Array<Club>>([]);
   const [match, setMatch] = useState<Match | null>(null);
   const { loading, error, clubs, hasMore } = useClubsSearch(query, pageNumber);
+  const [warning, setWarning] = useState<string>("");
 
   const observer = useRef<HTMLDivElement>(null) as any;
   const lastClubElementRef = useCallback(
@@ -41,10 +42,9 @@ const Clubs = (): JSX.Element => {
       if (!prevSelecteTeams.includes(club)) {
         prevSelecteTeams.push(club);
         const match: Match = {
-          firstTeam: prevSelecteTeams[0],
+          homeTeam: prevSelecteTeams[0],
         };
-        if (prevSelecteTeams.length == 2)
-          match.secondTeam = prevSelecteTeams[1];
+        if (prevSelecteTeams.length == 2) match.awayTeam = prevSelecteTeams[1];
         setMatch(match);
       }
       return prevSelecteTeams;
@@ -52,6 +52,7 @@ const Clubs = (): JSX.Element => {
   };
 
   const playMatch = (match: Match) => {
+    setWarning("");
     const requestOptions = {
       method: "POST",
       headers: { "Content-Type": "application/json" },
@@ -64,6 +65,8 @@ const Clubs = (): JSX.Element => {
         if (success) {
           setSelectedTeams([]);
           setMatch(null);
+        } else {
+          setWarning("Team already plays");
         }
       })
       .catch((error: any) => {});
@@ -72,7 +75,11 @@ const Clubs = (): JSX.Element => {
   return (
     <div id="clubsFlow">
       {match != null && (
-        <MatchCreator match={match} playMatchHandle={() => playMatch(match)} />
+        <MatchCreator
+          match={match}
+          warning={warning}
+          playMatchHandle={() => playMatch(match)}
+        />
       )}
       <div id="clubs">
         <div id="queryLabel">

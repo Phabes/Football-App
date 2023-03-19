@@ -21,7 +21,6 @@ export const useMatchesSearch = (pageNumber: number) => {
     fetch(config.url + "matches", requestOptions)
       .then((response) => response.json())
       .then((data) => {
-        console.log(data);
         setMatches((prevMatches) => {
           return [...prevMatches, ...data.matches];
         });
