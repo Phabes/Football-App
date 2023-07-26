@@ -1,0 +1,62 @@
+.map2D {
+  display: flex;
+  align-items: center;
+  flex-direction: column;
+}
+
+.mapContent {
+  width: 80%;
+  display: flex;
+  align-items: center;
+  flex-direction: column;
+}
+
+.mapContent > .matchLabel {
+  display: flex;
+  padding: 10px 0;
+  margin: 10px 0;
+  width: 100%;
+  font-size: 20px;
+  box-shadow: 0 1px 5px black;
+}
+
+.mapContent > .matchFirstClubName,
+.mapContent > .matchSecondClubName {
+  display: flex;
+  align-items: center;
+  flex: 3;
+}
+
+.mapContent > .matchFirstClubName {
+  justify-content: flex-end;
+  margin-right: 50px;
+}
+
+.mapContent > .matchSecondClubName {
+  margin-left: 50px;
+}
+
+.mapContent > .versus {
+  display: flex;
+  align-items: center;
+  color: rgb(40, 215, 133);
+  font-size: 30px;
+}
+
+#matchStream {
+  width: 70%;
+  height: 400px;
+  display: flex;
+  position: relative;
+}
+
+.halfField {
+  flex: 1;
+  height: 400px;
+  background-color: green;
+  position: relative;
+}
+
+#homeTeam {
+  background-color: lightblue;
+}

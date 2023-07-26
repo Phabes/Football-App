@@ -1,7 +1,6 @@
 import { useCallback, useRef, useState } from "react";
 import PulseLoader from "react-spinners/PulseLoader";
 import { useMatchesSearch } from "../../hooks/useMatchesSearch";
-import { Match } from "../../model/Match";
 import MatchLabel from "../MatchLabel/MatchLabel";
 import "./Matches.css";
 

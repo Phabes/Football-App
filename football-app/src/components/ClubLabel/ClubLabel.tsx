@@ -1,4 +1,4 @@
-import { forwardRef, Ref, useState } from "react";
+import { forwardRef, Ref } from "react";
 import { Club } from "../../model/Club";
 import "./ClubLabel.css";
 

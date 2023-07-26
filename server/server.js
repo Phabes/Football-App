@@ -8,11 +8,17 @@ app.use(cors({ origin: "*" }));
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
+const randomFormation = () => {
+  const formation = Math.floor(Math.random() * 2);
+  return formation == 0 ? [1, 4, 4, 2] : [1, 4, 3, 3];
+};
+
 const clubs = [];
 for (let i = 0; i < 120; i++) {
   clubs.push({
     id: i,
     name: `club_name_${i}`,
+    formation: randomFormation(),
   });
 }
 const matches = [];
@@ -22,6 +28,8 @@ for (let i = (clubs.length - 2) / 2 + 1; i < clubs.length - 2 + 1; i += 2) {
     id: currentMatchID++,
     homeTeam: clubs[i],
     awayTeam: clubs[i + 1],
+    currentTeam: "homeTeam",
+    currentPlayer: 5,
     subscribers: [],
   });
 }
@@ -69,12 +77,25 @@ app.post("/newMatch", (req, res) => {
       id: currentMatchID++,
       homeTeam: match.homeTeam,
       awayTeam: match.awayTeam,
+      currentTeam: "homeTeam",
+      currentPlayer: 5,
+      subscribers: [],
     };
     matches.push(footballMatch);
     res.status(200).json({ success: true });
   } else {
     res.status(200).json({ success: false });
   }
+});
+
+app.post("/match", (req, res) => {
+  const { matchID } = req.body;
+  const match = findMatchByID(matchID);
+  res.status(200).json({
+    id: match.id,
+    homeTeam: match.homeTeam,
+    awayTeam: match.awayTeam,
+  });
 });
 
 const appServer = app.listen(PORT, () => {
@@ -87,11 +108,31 @@ const io = new Server(appServer, {
   },
 });
 
+const evaluateAction = (match) => {
+  const loseBall = Math.random();
+  if (loseBall < 0.3)
+    match.currentTeam == "homeTeam"
+      ? (match.currentTeam = "awayTeam")
+      : (match.currentTeam = "homeTeam");
+  match.currentPlayer = Math.floor(Math.random() * 11);
+};
+
 const refreshMatchesData = () => {
   matches.forEach((match, i) => {
     const randomNumber = Math.random();
+    const lastTeam = match.currentTeam;
+    const lastPlayer = match.currentPlayer;
+    evaluateAction(match);
     match.subscribers.forEach((socket) => {
-      socket.emit(`matches/${i}`, `matches/${i} ${randomNumber}`);
+      socket.emit(`matches/${i}`, {
+        data: `matches/${i} ${randomNumber}`,
+        matchData: {
+          currentTeam: match.currentTeam,
+          currentPlayer: match.currentPlayer,
+          lastTeam: lastTeam,
+          lastPlayer: lastPlayer,
+        },
+      });
     });
   });
 };
@@ -129,12 +170,3 @@ io.on("connection", (socket) => {
     if (!match.subscribers.includes(socket)) match.subscribers.push(socket);
   });
 });
-
-// const disconnectAllClients = () => {
-//   const connectedSockets = Object.values(io.sockets.sockets);
-
-//   connectedSockets.forEach((socket) => {
-//     socket.disconnect(true); // Pass true to close the underlying connection
-//   });
-// };
-// disconnectAllClients();
