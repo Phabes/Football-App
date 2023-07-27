@@ -60,3 +60,9 @@
 #homeTeam {
   background-color: lightblue;
 }
+
+svg {
+  position: absolute;
+  width: 100%;
+  height: 100%;
+}

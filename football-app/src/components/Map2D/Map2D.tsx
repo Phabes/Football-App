@@ -5,10 +5,12 @@ import config from "../../config/Config";
 import { Match } from "../../model/Match";
 import { useResize } from "../../hooks/useResize";
 import { Ball } from "../../model/Ball";
+import { Line } from "../../model/Line";
 
 const Map2D = (): JSX.Element => {
   const [ball, setBall] = useState<Ball>();
   const [match, setMatch] = useState<Match>();
+  const [line, setLine] = useState<Line>();
   const ref = useRef<HTMLDivElement>(null);
   const { width, height } = useResize(ref);
   const [homeTeam, setHomeTeam] = useState<any>([]);
@@ -20,24 +22,38 @@ const Map2D = (): JSX.Element => {
       const xSpace = width / match.homeTeam.formation.length;
       let total = 0;
       let currX = 0;
+      let newLine: Line = {
+        x1: 0,
+        y1: 0,
+        x2: 0,
+        y2: 0,
+      };
       for (let line of match.homeTeam.formation) {
         const ySpace = height / line;
         for (let i = 0; i < line; i++) {
+          const top = i * ySpace + ySpace / 2;
+          const left = currX + xSpace / 2;
+          let sign = "";
+          if (ball?.lastTeam == "homeTeam" && ball.lastPlayer == total) {
+            newLine.x1 = left;
+            newLine.y1 = top;
+            sign = "-";
+          }
+          if (ball?.currentTeam == "homeTeam" && ball.currentPlayer == total) {
+            newLine.x2 = left;
+            newLine.y2 = top;
+            sign = "+";
+          }
           homeTeam.push(
             <div
               style={{
                 position: "absolute",
-                top: i * ySpace + ySpace / 2 + "px",
-                left: currX + xSpace / 2 + "px",
+                top: top + "px",
+                left: left + "px",
               }}
             >
               {total}
-              {ball?.currentTeam == "homeTeam" && ball.currentPlayer == total
-                ? "+"
-                : ""}
-              {ball?.lastTeam == "homeTeam" && ball.lastPlayer == total
-                ? "-"
-                : ""}
+              {sign}
             </div>
           );
           total++;
@@ -52,21 +68,32 @@ const Map2D = (): JSX.Element => {
         for (let line of match.awayTeam.formation) {
           const ySpace = height / line;
           for (let i = 0; i < line; i++) {
+            const top = i * ySpace + ySpace / 2;
+            const left = width - (currX + xSpace / 2);
+            let sign = "";
+            if (ball?.lastTeam == "awayTeam" && ball.lastPlayer == total) {
+              newLine.x1 = width + left;
+              newLine.y1 = top;
+              sign = "-";
+            }
+            if (
+              ball?.currentTeam == "awayTeam" &&
+              ball.currentPlayer == total
+            ) {
+              newLine.x2 = width + left;
+              newLine.y2 = top;
+              sign = "+";
+            }
             awayTeam.push(
               <div
                 style={{
                   position: "absolute",
-                  top: i * ySpace + ySpace / 2 + "px",
-                  right: currX + xSpace / 2 + "px",
+                  top: top + "px",
+                  left: left + "px",
                 }}
               >
                 {total}
-                {ball?.currentTeam == "awayTeam" && ball.currentPlayer == total
-                  ? "+"
-                  : ""}
-                {ball?.lastTeam == "awayTeam" && ball.lastPlayer == total
-                  ? "-"
-                  : ""}
+                {sign}
               </div>
             );
             total++;
@@ -75,6 +102,7 @@ const Map2D = (): JSX.Element => {
         }
         setAwayTeam(awayTeam);
       }
+      setLine(newLine);
     }
   }, [width, height, match, ball]);
 
@@ -138,6 +166,15 @@ const Map2D = (): JSX.Element => {
           <div id="awayTeam" className="halfField">
             {awayTeam}
           </div>
+          <svg>
+            <line
+              x1={line?.x1}
+              y1={line?.y1}
+              x2={line?.x2}
+              y2={line?.y2}
+              stroke="black"
+            ></line>
+          </svg>
         </div>
         <div>{JSON.stringify(ball)}</div>
       </div>
