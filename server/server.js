@@ -8,9 +8,25 @@ app.use(cors({ origin: "*" }));
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
+const availableColors = [
+  "#de2346",
+  "#de892f",
+  "#32de2c",
+  "#2a56e8",
+  "#2d6bcf",
+  "#8c35de",
+  "#b329cf",
+  "#cc1b88",
+];
+
 const randomFormation = () => {
   const formation = Math.floor(Math.random() * 2);
   return formation == 0 ? [1, 4, 4, 2] : [1, 4, 3, 3];
+};
+
+const randomColor = () => {
+  const color = Math.floor(Math.random() * availableColors.length);
+  return availableColors[color];
 };
 
 const clubs = [];
@@ -19,6 +35,7 @@ for (let i = 0; i < 120; i++) {
     id: i,
     name: `club_name_${i}`,
     formation: randomFormation(),
+    colors: { mainColor: randomColor(), secondaryColor: randomColor() },
   });
 }
 const matches = [];

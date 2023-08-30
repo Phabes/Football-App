@@ -6,6 +6,7 @@ import { Match } from "../../model/Match";
 import { useResize } from "../../hooks/useResize";
 import { Ball } from "../../model/Ball";
 import { Line } from "../../model/Line";
+import Player2D from "../Player2D/Player2D";
 
 const Map2D = (): JSX.Element => {
   const [ball, setBall] = useState<Ball>();
@@ -13,8 +14,8 @@ const Map2D = (): JSX.Element => {
   const [line, setLine] = useState<Line>();
   const ref = useRef<HTMLDivElement>(null);
   const { width, height } = useResize(ref);
-  const [homeTeam, setHomeTeam] = useState<any>([]);
-  const [awayTeam, setAwayTeam] = useState<any>([]);
+  const [homeTeam, setHomeTeam] = useState<JSX.Element[]>([]);
+  const [awayTeam, setAwayTeam] = useState<JSX.Element[]>([]);
 
   useEffect(() => {
     if (width != 0 && height != 0 && match) {
@@ -31,8 +32,10 @@ const Map2D = (): JSX.Element => {
       for (let line of match.homeTeam.formation) {
         const ySpace = height / line;
         for (let i = 0; i < line; i++) {
-          const top = i * ySpace + ySpace / 2;
-          const left = currX + xSpace / 2;
+          const top = i * ySpace + ySpace / 2 - config.player2dSize / 2;
+          const left = currX + xSpace / 2 - config.player2dSize / 2;
+          const hasBall =
+            ball?.currentTeam == "homeTeam" && ball.currentPlayer == total;
           let sign = "";
           if (ball?.lastTeam == "homeTeam" && ball.lastPlayer == total) {
             newLine.x1 = left;
@@ -45,16 +48,13 @@ const Map2D = (): JSX.Element => {
             sign = "+";
           }
           homeTeam.push(
-            <div
-              style={{
-                position: "absolute",
-                top: top + "px",
-                left: left + "px",
-              }}
-            >
-              {total}
-              {sign}
-            </div>
+            <Player2D
+              left={left}
+              top={top}
+              total={total}
+              hasBall={hasBall}
+              colors={match.homeTeam.colors}
+            ></Player2D>
           );
           total++;
         }
@@ -68,8 +68,10 @@ const Map2D = (): JSX.Element => {
         for (let line of match.awayTeam.formation) {
           const ySpace = height / line;
           for (let i = 0; i < line; i++) {
-            const top = i * ySpace + ySpace / 2;
-            const left = width - (currX + xSpace / 2);
+            const top = i * ySpace + ySpace / 2 - config.player2dSize / 2;
+            const left = width - (currX + xSpace / 2) - config.player2dSize / 2;
+            const hasBall =
+              ball?.currentTeam == "awayTeam" && ball.currentPlayer == total;
             let sign = "";
             if (ball?.lastTeam == "awayTeam" && ball.lastPlayer == total) {
               newLine.x1 = width + left;
@@ -85,16 +87,13 @@ const Map2D = (): JSX.Element => {
               sign = "+";
             }
             awayTeam.push(
-              <div
-                style={{
-                  position: "absolute",
-                  top: top + "px",
-                  left: left + "px",
-                }}
-              >
-                {total}
-                {sign}
-              </div>
+              <Player2D
+                left={left}
+                top={top}
+                total={total}
+                hasBall={hasBall}
+                colors={match.awayTeam.colors}
+              ></Player2D>
             );
             total++;
           }

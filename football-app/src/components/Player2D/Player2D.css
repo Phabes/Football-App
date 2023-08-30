@@ -1,0 +1,79 @@
+.player2D {
+  position: absolute;
+  z-index: 2;
+  display: flex;
+}
+
+.shirt {
+  display: flex;
+  flex: 1;
+  position: relative;
+}
+
+.pattern {
+  display: flex;
+  flex: 1;
+}
+
+.strip {
+  display: flex;
+  flex: 1;
+}
+
+.strip:nth-child(odd) {
+  /* background-color: blue; */
+}
+
+.strip:nth-child(even) {
+  /* background-color: red; */
+}
+
+.strip:first-child,
+.strip:last-child {
+  /* background-color: blue; */
+  height: 30%;
+}
+
+.playerInfo {
+  position: absolute;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  width: 100%;
+  height: 100%;
+}
+
+.playerInfo > div {
+  display: flex;
+  color: white;
+  justify-content: center;
+  align-items: center;
+  width: 100%;
+}
+
+.playerInfo > .playerName {
+  flex: 1;
+  font-size: 10px;
+  overflow: hidden;
+}
+
+.playerInfo > .playerNumber {
+  flex: 3;
+  font-weight: bold;
+  font-size: 25px;
+}
+
+.playerInfo > .ball {
+  flex: 1;
+  position: relative;
+}
+
+.playerInfo > .ball > img {
+  position: absolute;
+  width: 20px;
+  height: 20px;
+  z-index: 3;
+  left: 0;
+  top: 0;
+}
