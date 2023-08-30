@@ -11,14 +11,16 @@ const Player2D = (props: {
     mainColor: string;
     secondaryColor: string;
   };
+  scale: number;
 }): JSX.Element => {
-  const { left, top, total, hasBall, colors } = props;
+  const { left, top, total, hasBall, colors, scale } = props;
+
   return (
     <div
       className="player2D"
       style={{
-        width: config.player2dSize + "px",
-        height: config.player2dSize + "px",
+        width: config.player2dSize * scale + "px",
+        height: config.player2dSize * scale + "px",
         top: top + "px",
         left: left + "px",
       }}
@@ -47,7 +49,9 @@ const Player2D = (props: {
           ></div>
         </div>
         <div className="playerInfo">
-          <div className="playerName">Name</div>
+          <div className="playerName">
+            <div className="playerNamePlaceholder">Name</div>
+          </div>
           <div className="playerNumber">{total}</div>
           <div className="ball">
             {hasBall ? (

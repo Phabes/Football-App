@@ -3,6 +3,11 @@ const config = {
     ? process.env.FOOTBALL_URL
     : "http://localhost:5000/",
   player2dSize: 50,
+  halfPitchSize: {
+    width: 53,
+    height: 68,
+  },
+  pitchLinesWidth: 4,
 };
 
 export default config;

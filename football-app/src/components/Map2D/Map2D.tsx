@@ -7,15 +7,18 @@ import { useResize } from "../../hooks/useResize";
 import { Ball } from "../../model/Ball";
 import { Line } from "../../model/Line";
 import Player2D from "../Player2D/Player2D";
+import PitchLines from "../PitchLines/PitchLines";
 
 const Map2D = (): JSX.Element => {
   const [ball, setBall] = useState<Ball>();
   const [match, setMatch] = useState<Match>();
   const [line, setLine] = useState<Line>();
-  const ref = useRef<HTMLDivElement>(null);
-  const { width, height } = useResize(ref);
   const [homeTeam, setHomeTeam] = useState<JSX.Element[]>([]);
   const [awayTeam, setAwayTeam] = useState<JSX.Element[]>([]);
+  const ref = useRef<HTMLDivElement>(null);
+  const { width /*, height*/ } = useResize(ref);
+  const height =
+    (width * config.halfPitchSize.width) / config.halfPitchSize.height;
 
   useEffect(() => {
     if (width != 0 && height != 0 && match) {
@@ -29,23 +32,23 @@ const Map2D = (): JSX.Element => {
         x2: 0,
         y2: 0,
       };
+      const scale = width > 350 ? 1 : width / 350;
+      console.log(scale, width);
       for (let line of match.homeTeam.formation) {
         const ySpace = height / line;
         for (let i = 0; i < line; i++) {
-          const top = i * ySpace + ySpace / 2 - config.player2dSize / 2;
-          const left = currX + xSpace / 2 - config.player2dSize / 2;
+          const top =
+            i * ySpace + ySpace / 2 - (config.player2dSize / 2) * scale;
+          const left = currX + xSpace / 2 - (config.player2dSize / 2) * scale;
           const hasBall =
             ball?.currentTeam == "homeTeam" && ball.currentPlayer == total;
-          let sign = "";
           if (ball?.lastTeam == "homeTeam" && ball.lastPlayer == total) {
             newLine.x1 = left;
             newLine.y1 = top;
-            sign = "-";
           }
           if (ball?.currentTeam == "homeTeam" && ball.currentPlayer == total) {
             newLine.x2 = left;
             newLine.y2 = top;
-            sign = "+";
           }
           homeTeam.push(
             <Player2D
@@ -54,7 +57,8 @@ const Map2D = (): JSX.Element => {
               total={total}
               hasBall={hasBall}
               colors={match.homeTeam.colors}
-            ></Player2D>
+              scale={scale}
+            />
           );
           total++;
         }
@@ -68,8 +72,10 @@ const Map2D = (): JSX.Element => {
         for (let line of match.awayTeam.formation) {
           const ySpace = height / line;
           for (let i = 0; i < line; i++) {
-            const top = i * ySpace + ySpace / 2 - config.player2dSize / 2;
-            const left = width - (currX + xSpace / 2) - config.player2dSize / 2;
+            const top =
+              i * ySpace + ySpace / 2 - (config.player2dSize / 2) * scale;
+            const left =
+              width - (currX + xSpace / 2) - (config.player2dSize / 2) * scale;
             const hasBall =
               ball?.currentTeam == "awayTeam" && ball.currentPlayer == total;
             let sign = "";
@@ -93,7 +99,8 @@ const Map2D = (): JSX.Element => {
                 total={total}
                 hasBall={hasBall}
                 colors={match.awayTeam.colors}
-              ></Player2D>
+                scale={scale}
+              />
             );
             total++;
           }
@@ -131,7 +138,6 @@ const Map2D = (): JSX.Element => {
 
     const handleMatchesData = (data: any) => {
       setBall(data.matchData);
-      console.log(data);
     };
 
     const handleDisconnect = () => {
@@ -159,13 +165,19 @@ const Map2D = (): JSX.Element => {
           <div className="matchSecondClubName">{match?.awayTeam?.name}</div>
         </div>
         <div id="matchStream">
-          <div ref={ref} id="homeTeam" className="halfField">
+          <div
+            ref={ref}
+            id="homeTeam"
+            className="halfField"
+            style={{ height: height }}
+          >
             {homeTeam}
           </div>
-          <div id="awayTeam" className="halfField">
+          <div id="awayTeam" className="halfField" style={{ height: height }}>
             {awayTeam}
           </div>
-          <svg>
+          <PitchLines width={width} height={height} />
+          <svg id="passLine">
             <line
               x1={line?.x1}
               y1={line?.y1}

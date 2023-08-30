@@ -1,13 +1,13 @@
-import { Ref, RefObject, useCallback, useEffect, useState } from "react";
+import { RefObject, useEffect, useState } from "react";
 
 export const useResize = (myRef: RefObject<HTMLDivElement | null>) => {
   const [width, setWidth] = useState(0);
-  const [height, setHeight] = useState(0);
+  // const [height, setHeight] = useState(0);
 
   const handleResize = () => {
     if (myRef.current) {
       setWidth(myRef.current.clientWidth);
-      setHeight(myRef.current.clientHeight);
+      // setHeight(myRef.current.clientHeight);
     }
   };
 
@@ -22,5 +22,6 @@ export const useResize = (myRef: RefObject<HTMLDivElement | null>) => {
     };
   }, []);
 
-  return { width, height };
+  return { width };
+  // return { width, height };
 };
