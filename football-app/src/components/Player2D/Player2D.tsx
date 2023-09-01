@@ -1,19 +1,17 @@
 import "./Player2D.css";
 import config from "../../config/Config";
-import football from "../../images/football.png";
 
 const Player2D = (props: {
   left: number;
   top: number;
   total: number;
-  hasBall: boolean;
   colors: {
     mainColor: string;
     secondaryColor: string;
   };
   scale: number;
 }): JSX.Element => {
-  const { left, top, total, hasBall, colors, scale } = props;
+  const { left, top, total, colors, scale } = props;
 
   return (
     <div
@@ -53,12 +51,8 @@ const Player2D = (props: {
             <div className="playerNamePlaceholder">Name</div>
           </div>
           <div className="playerNumber">{total}</div>
-          <div className="ball">
-            {hasBall ? (
-              <img src={football} alt="ball" className="ball" />
-            ) : (
-              <></>
-            )}
+          <div className="sponsors">
+            <div className="sponsorPlaceholder"></div>
           </div>
         </div>
       </div>

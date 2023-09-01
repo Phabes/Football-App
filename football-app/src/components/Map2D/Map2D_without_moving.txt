@@ -11,10 +11,10 @@ import PitchLines2D from "../PitchLines2D/PitchLines2D";
 import PassLine2D from "../PassLine2D/PassLine2D";
 import Ball2D from "../Ball2D/Ball2D";
 import { Point } from "../../model/Point";
+// import { usePathSearch } from "../../hooks/usePathSearch";
 
 const Map2D = (): JSX.Element => {
   const [ball, setBall] = useState<Ball>();
-  const [queue, setQueue] = useState<Ball[]>();
   const [ballPosition, setBallPosition] = useState<Point>({
     left: 0,
     top: 0,
@@ -43,10 +43,7 @@ const Map2D = (): JSX.Element => {
   const scale =
     width > config.startScalingSize ? 1 : width / config.startScalingSize;
   const started = ball != null;
-  const xStep =
-    ((line.end.left - line.start.left) / config.time) * config.timeStep;
-  const yStep =
-    ((line.end.top - line.start.top) / config.time) * config.timeStep;
+  // const { line, point } = usePathSearch(ball, match, width, height, scale);
 
   useEffect(() => {
     if (height != 0 && match) {
@@ -137,57 +134,29 @@ const Map2D = (): JSX.Element => {
       newLine.end.top += (config.player2dSize / 2) * scale;
       setLine(newLine);
     }
-  }, [width, match, ball]);
-
-  useEffect(() => {
-    handleResize();
-  }, [ball]);
+  }, [width, height, match, ball]);
 
   useEffect(() => {
     setBallPosition({
-      left: line.start.left - ballSize / 2,
-      top: line.start.top - ballSize / 2,
+      left: line.end.left,
+      top: line.end.top,
     });
-    let remaining = config.time;
-    const interval = setInterval(() => {
-      remaining -= config.timeStep;
-      if (remaining == 0) {
-        clearInterval(interval);
-        setBallPosition({
-          left: line.end.left - ballSize / 2,
-          top: line.end.top - ballSize / 2,
-        });
-      } else {
-        setBallPosition((prev) => {
-          return {
-            left: prev.left + xStep,
-            top: prev.top + yStep,
-          };
-        });
-      }
-    }, config.timeStep);
-    return () => clearInterval(interval);
   }, [line]);
 
-  useEffect(() => {
-    if (
-      started &&
-      ballPosition.left == line.end.left - ballSize / 2 &&
-      ballPosition.top == line.end.top - ballSize / 2 &&
-      queue
-    ) {
-      const interval = setInterval(() => {
-        if (queue.length > 0) {
-          setBall(queue[0]);
-          clearInterval(interval);
-        }
-      }, 200);
-    }
-  }, [ballPosition, queue]);
-
-  useEffect(() => {
-    if (!ball && queue) setBall(queue[0]);
-  }, [ball, queue]);
+  // useEffect(() => {
+  //   let time = 2000;
+  //   const xStep = (line.end.left - line.start.left) / time;
+  //   const yStep = (line.end.top - line.start.top) / time;
+  //   const timeout = setInterval(() => {
+  //     setBallPosition((prev) => {
+  //       return {
+  //         left: prev.left - xStep,
+  //         top: prev.top - yStep,
+  //       };
+  //     });
+  //   }, 1);
+  //   return () => clearInterval(timeout);
+  // }, [ballPosition]);
 
   useEffect(() => {
     const socket = io("localhost:5000");
@@ -214,9 +183,7 @@ const Map2D = (): JSX.Element => {
     };
 
     const handleMatchesData = (data: { matchData: Ball }) => {
-      // setQueue((prev) => [...prev, data.matchData]);
-      if (queue) setQueue((prev) => [...prev!, data.matchData]);
-      else setQueue([data.matchData]);
+      setBall(data.matchData);
     };
 
     const handleDisconnect = () => {

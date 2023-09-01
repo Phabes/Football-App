@@ -8,20 +8,33 @@ app.use(cors({ origin: "*" }));
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
+const availableFormations = [
+  [1, 4, 4, 2],
+  [1, 4, 3, 3],
+  [1, 3, 4, 3],
+  [1, 3, 5, 2],
+];
+
 const availableColors = [
-  "#de2346",
-  "#de892f",
-  "#32de2c",
-  "#2a56e8",
-  "#2d6bcf",
-  "#8c35de",
-  "#b329cf",
-  "#cc1b88",
+  "#eb8181",
+  "#ed6639",
+  "#edb451",
+  "#dae01d",
+  "#88db2a",
+  "#20f532",
+  "#20f5b5",
+  "#1cd1e6",
+  "#1679db",
+  "#ac72f2",
+  "#911ad6",
+  "#d62dd1",
+  "#e62984",
+  "#d11141",
 ];
 
 const randomFormation = () => {
-  const formation = Math.floor(Math.random() * 2);
-  return formation == 0 ? [1, 4, 4, 2] : [1, 4, 3, 3];
+  const formation = Math.floor(Math.random() * availableFormations.length);
+  return availableFormations[formation];
 };
 
 const randomColor = () => {
@@ -142,7 +155,7 @@ const refreshMatchesData = () => {
     evaluateAction(match);
     match.subscribers.forEach((socket) => {
       socket.emit(`matches/${i}`, {
-        data: `matches/${i} ${randomNumber}`,
+        // data: `matches/${i} ${randomNumber}`,
         matchData: {
           currentTeam: match.currentTeam,
           currentPlayer: match.currentPlayer,

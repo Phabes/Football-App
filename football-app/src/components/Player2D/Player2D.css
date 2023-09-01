@@ -5,16 +5,11 @@
 }
 
 .shirt {
-  display: flex;
-  flex: 1;
   position: relative;
 }
 
-.pattern {
-  display: flex;
-  flex: 1;
-}
-
+.shirt,
+.pattern,
 .strip {
   display: flex;
   flex: 1;
@@ -45,11 +40,12 @@
 
 .playerInfo > .playerName {
   flex: 1;
-  font-size: 10px;
+  font-size: 9px;
   overflow: hidden;
 }
 
-.playerInfo > .playerName > .playerNamePlaceholder {
+.playerInfo > .playerName > .playerNamePlaceholder,
+.playerInfo > .sponsors > .sponsorPlaceholder {
   display: flex;
   flex: 1;
   justify-content: center;
@@ -60,24 +56,19 @@
   flex: 3;
   font-weight: bold;
   font-size: 25px;
+  width: 60%;
 }
 
-.playerInfo > .ball {
+.playerInfo > .sponsors {
   flex: 1;
-  position: relative;
-}
-
-.playerInfo > .ball > img {
-  position: absolute;
-  width: 20px;
-  height: 20px;
-  z-index: 3;
-  left: 0;
-  top: 0;
+  font-size: 9px;
+  overflow: hidden;
+  width: 60%;
 }
 
 @media (max-width: 900px) {
-  .playerInfo > .playerName > .playerNamePlaceholder {
+  .playerInfo > .playerName > .playerNamePlaceholder,
+  .playerInfo > .sponsors > .sponsorPlaceholder {
     display: none;
   }
 }
@@ -85,11 +76,6 @@
 @media (max-width: 800px) {
   .playerInfo > .playerNumber {
     font-size: 20px;
-  }
-
-  .playerInfo > .ball > img {
-    width: 15px;
-    height: 15px;
   }
 }
 
