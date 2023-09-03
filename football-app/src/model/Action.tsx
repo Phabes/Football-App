@@ -1,4 +1,4 @@
-export interface Ball {
+export interface Action {
   currentTeam: string;
   currentPlayer: number;
   lastTeam: string;

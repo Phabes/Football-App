@@ -4,7 +4,7 @@ import { useEffect, useRef, useState } from "react";
 import config from "../../config/Config";
 import { Match } from "../../model/Match";
 import { useResize } from "../../hooks/useResize";
-import { Ball } from "../../model/Ball";
+import { Action } from "../../model/Action";
 import { Line } from "../../model/Line";
 import Player2D from "../Player2D/Player2D";
 import PitchLines2D from "../PitchLines2D/PitchLines2D";
@@ -13,13 +13,17 @@ import Ball2D from "../Ball2D/Ball2D";
 import { Point } from "../../model/Point";
 
 const Map2D = (): JSX.Element => {
-  const [ball, setBall] = useState<Ball>();
-  const [queue, setQueue] = useState<Ball[]>();
+  const [match, setMatch] = useState<Match>();
+  const [queue, setQueue] = useState<Action[]>([]);
+  const [action, setAction] = useState<number>(-1);
+  const [tick, setTick] = useState<number>(0);
+  const [inPlay, setInPlay] = useState<boolean>(false);
+  const [homeTeam, setHomeTeam] = useState<JSX.Element[]>([]);
+  const [awayTeam, setAwayTeam] = useState<JSX.Element[]>([]);
   const [ballPosition, setBallPosition] = useState<Point>({
     left: 0,
     top: 0,
   });
-  const [match, setMatch] = useState<Match>();
   const [line, setLine] = useState<Line>({
     start: {
       left: 0,
@@ -30,8 +34,6 @@ const Map2D = (): JSX.Element => {
       top: 0,
     },
   });
-  const [homeTeam, setHomeTeam] = useState<JSX.Element[]>([]);
-  const [awayTeam, setAwayTeam] = useState<JSX.Element[]>([]);
   const ref = useRef<HTMLDivElement>(null);
   const ballRef = useRef<HTMLDivElement>(null);
   const { width, ballSize, handleResize /*, height*/ } = useResize(
@@ -42,14 +44,14 @@ const Map2D = (): JSX.Element => {
     (width * config.halfPitchSize.height) / config.halfPitchSize.width;
   const scale =
     width > config.startScalingSize ? 1 : width / config.startScalingSize;
-  const started = ball != null;
   const xStep =
     ((line.end.left - line.start.left) / config.time) * config.timeStep;
   const yStep =
     ((line.end.top - line.start.top) / config.time) * config.timeStep;
+  const started = action >= 0;
 
   useEffect(() => {
-    if (height != 0 && match) {
+    if (height > 0 && match) {
       const homeTeam = [];
       const xSpace = width / match.homeTeam.formation.length;
       let total = 0;
@@ -70,11 +72,19 @@ const Map2D = (): JSX.Element => {
           const top =
             i * ySpace + ySpace / 2 - (config.player2dSize / 2) * scale;
           const left = currX + xSpace / 2 - (config.player2dSize / 2) * scale;
-          if (ball?.lastTeam == "homeTeam" && ball.lastPlayer == total) {
+          if (
+            action >= 0 &&
+            queue[action].lastTeam == "homeTeam" &&
+            queue[action].lastPlayer == total
+          ) {
             newLine.start.left = left;
             newLine.start.top = top;
           }
-          if (ball?.currentTeam == "homeTeam" && ball.currentPlayer == total) {
+          if (
+            action >= 0 &&
+            queue[action].currentTeam == "homeTeam" &&
+            queue[action].currentPlayer == total
+          ) {
             newLine.end.left = left;
             newLine.end.top = top;
           }
@@ -104,13 +114,18 @@ const Map2D = (): JSX.Element => {
               i * ySpace + ySpace / 2 - (config.player2dSize / 2) * scale;
             const left =
               width - (currX + xSpace / 2) - (config.player2dSize / 2) * scale;
-            if (ball?.lastTeam == "awayTeam" && ball.lastPlayer == total) {
+            if (
+              action >= 0 &&
+              queue[action].lastTeam == "awayTeam" &&
+              queue[action].lastPlayer == total
+            ) {
               newLine.start.left = width + left;
               newLine.start.top = top;
             }
             if (
-              ball?.currentTeam == "awayTeam" &&
-              ball.currentPlayer == total
+              action >= 0 &&
+              queue[action].currentTeam == "awayTeam" &&
+              queue[action].currentPlayer == total
             ) {
               newLine.end.left = width + left;
               newLine.end.top = top;
@@ -137,11 +152,7 @@ const Map2D = (): JSX.Element => {
       newLine.end.top += (config.player2dSize / 2) * scale;
       setLine(newLine);
     }
-  }, [width, match, ball]);
-
-  useEffect(() => {
-    handleResize();
-  }, [ball]);
+  }, [width, match, action]);
 
   useEffect(() => {
     setBallPosition({
@@ -151,7 +162,7 @@ const Map2D = (): JSX.Element => {
     let remaining = config.time;
     const interval = setInterval(() => {
       remaining -= config.timeStep;
-      if (remaining == 0) {
+      if (remaining <= 0) {
         clearInterval(interval);
         setBallPosition({
           left: line.end.left - ballSize / 2,
@@ -171,23 +182,33 @@ const Map2D = (): JSX.Element => {
 
   useEffect(() => {
     if (
-      started &&
       ballPosition.left == line.end.left - ballSize / 2 &&
-      ballPosition.top == line.end.top - ballSize / 2 &&
-      queue
-    ) {
-      const interval = setInterval(() => {
-        if (queue.length > 0) {
-          setBall(queue[0]);
-          clearInterval(interval);
-        }
-      }, 200);
-    }
-  }, [ballPosition, queue]);
+      ballPosition.top == line.end.top - ballSize / 2
+    )
+      setInPlay(false);
+  }, [ballPosition]);
 
   useEffect(() => {
-    if (!ball && queue) setBall(queue[0]);
-  }, [ball, queue]);
+    if (!inPlay) {
+      const interval = setInterval(() => {
+        if (action < queue.length - 1 && !inPlay) {
+          setAction((prev) => prev + 1);
+          clearInterval(interval);
+        } else if (inPlay) clearInterval(interval);
+      }, config.refreshTime);
+      return () => clearInterval(interval);
+    }
+  }, [inPlay]);
+
+  useEffect(() => {
+    handleResize();
+    setTick(0);
+    if (started && !inPlay) setInPlay(true);
+  }, [action]);
+
+  useEffect(() => {
+    if (!inPlay && action < queue.length - 1) setAction((prev) => prev + 1);
+  }, [queue]);
 
   useEffect(() => {
     const socket = io("localhost:5000");
@@ -213,10 +234,8 @@ const Map2D = (): JSX.Element => {
       });
     };
 
-    const handleMatchesData = (data: { matchData: Ball }) => {
-      // setQueue((prev) => [...prev, data.matchData]);
-      if (queue) setQueue((prev) => [...prev!, data.matchData]);
-      else setQueue([data.matchData]);
+    const handleMatchesData = (data: { matchData: Action }) => {
+      setQueue((prev) => [...prev, data.matchData]);
     };
 
     const handleDisconnect = () => {
@@ -250,7 +269,7 @@ const Map2D = (): JSX.Element => {
           <div id="awayTeam" className="halfField">
             {awayTeam}
           </div>
-          {height != 0 && <PitchLines2D width={width} height={height} />}
+          {height > 0 && <PitchLines2D width={width} height={height} />}
           {started && <PassLine2D line={line} />}
           {started && (
             <Ball2D
@@ -258,13 +277,11 @@ const Map2D = (): JSX.Element => {
               posistion={{
                 top: ballPosition.top,
                 left: ballPosition.left,
-                // top: line.end.top + ((config.player2dSize / 2) * scale * 3) / 5,
-                // left: line.end.left - (config.player2dSize / 2) * scale,
               }}
             />
           )}
         </div>
-        <div>{JSON.stringify(ball)}</div>
+        <div>{JSON.stringify(queue[action])}</div>
       </div>
     </div>
   );
