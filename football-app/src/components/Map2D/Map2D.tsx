@@ -10,7 +10,6 @@ import Player2D from "../Player2D/Player2D";
 import PitchLines2D from "../PitchLines2D/PitchLines2D";
 import PassLine2D from "../PassLine2D/PassLine2D";
 import Ball2D from "../Ball2D/Ball2D";
-import { Point } from "../../model/Point";
 
 const Map2D = (): JSX.Element => {
   const [match, setMatch] = useState<Match>();
@@ -20,10 +19,6 @@ const Map2D = (): JSX.Element => {
   const [inPlay, setInPlay] = useState<boolean>(false);
   const [homeTeam, setHomeTeam] = useState<JSX.Element[]>([]);
   const [awayTeam, setAwayTeam] = useState<JSX.Element[]>([]);
-  const [ballPosition, setBallPosition] = useState<Point>({
-    left: 0,
-    top: 0,
-  });
   const [line, setLine] = useState<Line>({
     start: {
       left: 0,
@@ -155,38 +150,18 @@ const Map2D = (): JSX.Element => {
   }, [width, match, action]);
 
   useEffect(() => {
-    setBallPosition({
-      left: line.start.left - ballSize / 2,
-      top: line.start.top - ballSize / 2,
-    });
-    let remaining = config.time;
+    if (config.time - config.timeStep * tick <= 0) setInPlay(false);
+  }, [tick]);
+
+  useEffect(() => {
+    let remaining = config.time - config.timeStep * tick;
     const interval = setInterval(() => {
       remaining -= config.timeStep;
-      if (remaining <= 0) {
-        clearInterval(interval);
-        setBallPosition({
-          left: line.end.left - ballSize / 2,
-          top: line.end.top - ballSize / 2,
-        });
-      } else {
-        setBallPosition((prev) => {
-          return {
-            left: prev.left + xStep,
-            top: prev.top + yStep,
-          };
-        });
-      }
+      if (remaining <= 0) clearInterval(interval);
+      setTick((prev) => prev + 1);
     }, config.timeStep);
     return () => clearInterval(interval);
   }, [line]);
-
-  useEffect(() => {
-    if (
-      ballPosition.left == line.end.left - ballSize / 2 &&
-      ballPosition.top == line.end.top - ballSize / 2
-    )
-      setInPlay(false);
-  }, [ballPosition]);
 
   useEffect(() => {
     if (!inPlay) {
@@ -211,7 +186,7 @@ const Map2D = (): JSX.Element => {
   }, [queue]);
 
   useEffect(() => {
-    const socket = io("localhost:5000");
+    const socket = io(config.url);
     socket.connect();
     const params = window.location.pathname.split("/");
 
@@ -275,8 +250,8 @@ const Map2D = (): JSX.Element => {
             <Ball2D
               ballRef={ballRef}
               posistion={{
-                top: ballPosition.top,
-                left: ballPosition.left,
+                top: line.start.top + yStep * tick - ballSize / 2,
+                left: line.start.left + xStep * tick - ballSize / 2,
               }}
             />
           )}
