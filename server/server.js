@@ -1,6 +1,7 @@
 const express = require("express");
 const cors = require("cors");
 const { Server } = require("socket.io");
+const config = require("./config");
 const app = express();
 const PORT = process.env.PORT || 5000;
 
@@ -63,7 +64,7 @@ for (let i = (clubs.length - 2) / 2 + 1; i < clubs.length - 2 + 1; i += 2) {
     subscribers: [],
   });
 }
-const itemsPerPage = 20;
+const itemsPerPage = config.itemsPerPage;
 
 app.post("/clubs", (req, res) => {
   const { query, pageNumber } = req.body;
@@ -140,7 +141,7 @@ const io = new Server(appServer, {
 
 const evaluateAction = (match) => {
   const loseBall = Math.random();
-  if (loseBall < 0.3)
+  if (loseBall < config.loseBallChance)
     match.currentTeam == "homeTeam"
       ? (match.currentTeam = "awayTeam")
       : (match.currentTeam = "homeTeam");
@@ -149,9 +150,12 @@ const evaluateAction = (match) => {
 
 const refreshMatchesData = () => {
   matches.forEach((match, i) => {
-    const randomNumber = Math.random();
     const lastTeam = match.currentTeam;
     const lastPlayer = match.currentPlayer;
+    const speed =
+      Math.floor(Math.random() * (config.variableTime / config.timeStep)) *
+        config.timeStep +
+      config.minTime;
     evaluateAction(match);
     match.subscribers.forEach((socket) => {
       socket.emit(`matches/${i}`, {
@@ -161,6 +165,7 @@ const refreshMatchesData = () => {
           currentPlayer: match.currentPlayer,
           lastTeam: lastTeam,
           lastPlayer: lastPlayer,
+          speed: speed,
         },
       });
     });

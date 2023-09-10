@@ -3,4 +3,5 @@ export interface Action {
   currentPlayer: number;
   lastTeam: string;
   lastPlayer: number;
+  speed: number;
 }

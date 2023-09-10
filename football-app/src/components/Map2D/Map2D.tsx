@@ -40,9 +40,13 @@ const Map2D = (): JSX.Element => {
   const scale =
     width > config.startScalingSize ? 1 : width / config.startScalingSize;
   const xStep =
-    ((line.end.left - line.start.left) / config.time) * config.timeStep;
+    ((line.end.left - line.start.left) /
+      (action != -1 ? queue[action].speed : config.speed)) *
+    config.timeStep;
   const yStep =
-    ((line.end.top - line.start.top) / config.time) * config.timeStep;
+    ((line.end.top - line.start.top) /
+      (action != -1 ? queue[action].speed : config.speed)) *
+    config.timeStep;
   const started = action >= 0;
 
   useEffect(() => {
@@ -150,11 +154,18 @@ const Map2D = (): JSX.Element => {
   }, [width, match, action]);
 
   useEffect(() => {
-    if (config.time - config.timeStep * tick <= 0) setInPlay(false);
+    if (
+      (action != -1 ? queue[action].speed : config.speed) -
+        config.timeStep * tick <=
+      0
+    )
+      setInPlay(false);
   }, [tick]);
 
   useEffect(() => {
-    let remaining = config.time - config.timeStep * tick;
+    let remaining =
+      (action != -1 ? queue[action].speed : config.speed) -
+      config.timeStep * tick;
     const interval = setInterval(() => {
       remaining -= config.timeStep;
       if (remaining <= 0) clearInterval(interval);

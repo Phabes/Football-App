@@ -9,7 +9,7 @@ const config = {
   },
   pitchLinesWidth: 4,
   startScalingSize: 350,
-  time: 3000,
+  speed: 3000,
   timeStep: 20,
   refreshTime: 200,
 };
