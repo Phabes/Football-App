@@ -10,10 +10,12 @@ import Player2D from "../Player2D/Player2D";
 import PitchLines2D from "../PitchLines2D/PitchLines2D";
 import PassLine2D from "../PassLine2D/PassLine2D";
 import Ball2D from "../Ball2D/Ball2D";
+import MatchLabel from "../MatchLabel/MatchLabel";
 
 const Map2D = (): JSX.Element => {
   const [match, setMatch] = useState<Match>();
   const [queue, setQueue] = useState<Action[]>([]);
+  const [score, setScore] = useState<number[]>([0, 0]);
   const [action, setAction] = useState<number>(-1);
   const [tick, setTick] = useState<number>(0);
   const [inPlay, setInPlay] = useState<boolean>(false);
@@ -210,6 +212,7 @@ const Map2D = (): JSX.Element => {
       .then((response) => response.json())
       .then((match: Match) => {
         setMatch(match);
+        setScore(match.score);
       })
       .catch((error: any) => console.log(error));
 
@@ -220,8 +223,8 @@ const Map2D = (): JSX.Element => {
       });
     };
 
-    const handleMatchesData = (data: { matchData: Action }) => {
-      setQueue((prev) => [...prev, data.matchData]);
+    const handleMatchesData = (data: { action: Action }) => {
+      setQueue((prev) => [...prev, data.action]);
     };
 
     const handleDisconnect = () => {
@@ -243,11 +246,13 @@ const Map2D = (): JSX.Element => {
   return (
     <div className="map2D">
       <div className="mapContent">
-        <div className="matchLabel">
-          <div className="matchFirstClubName">{match?.homeTeam.name}</div>
-          <div className="versus">VS</div>
-          <div className="matchSecondClubName">{match?.awayTeam?.name}</div>
-        </div>
+        {match && (
+          <MatchLabel
+            match={match}
+            score={started ? queue[action].score : match.score}
+            enableWatch={false}
+          />
+        )}
         <div id="matchStream" style={{ height: height }}>
           <div ref={ref} id="homeTeam" className="halfField">
             {homeTeam}
@@ -257,12 +262,20 @@ const Map2D = (): JSX.Element => {
           </div>
           {height > 0 && <PitchLines2D width={width} height={height} />}
           {started && <PassLine2D line={line} />}
-          {started && (
+          {started ? (
             <Ball2D
               ballRef={ballRef}
               posistion={{
                 top: line.start.top + yStep * tick - ballSize / 2,
                 left: line.start.left + xStep * tick - ballSize / 2,
+              }}
+            />
+          ) : (
+            <Ball2D
+              ballRef={ballRef}
+              posistion={{
+                top: height / 2 - ballSize / 2,
+                left: width - ballSize / 2,
               }}
             />
           )}

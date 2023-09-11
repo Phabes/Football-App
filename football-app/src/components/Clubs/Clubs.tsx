@@ -37,12 +37,14 @@ const Clubs = (): JSX.Element => {
   };
 
   const selectClub = (club: Club) => {
+    setWarning("");
     setSelectedTeams((prevSelecteTeams) => {
       if (prevSelecteTeams.length == 2) prevSelecteTeams.shift();
       if (!prevSelecteTeams.includes(club)) {
         prevSelecteTeams.push(club);
         const match: Match = {
           homeTeam: prevSelecteTeams[0],
+          score: [0, 0],
         };
         if (prevSelecteTeams.length == 2) match.awayTeam = prevSelecteTeams[1];
         setMatch(match);
@@ -66,7 +68,7 @@ const Clubs = (): JSX.Element => {
           setSelectedTeams([]);
           setMatch(null);
         } else {
-          setWarning("Team already plays");
+          setWarning("Team already in play");
         }
       })
       .catch((error: any) => {});

@@ -12,6 +12,7 @@
   display: flex;
   align-items: center;
   flex: 3;
+  word-break: break-all;
 }
 
 .matchFirstClubName {
@@ -21,6 +22,25 @@
 
 .matchSecondClubName {
   margin-left: 50px;
+}
+
+.matchFirstClubScore,
+.matchSecondClubScore {
+  display: flex;
+  flex: 0.6;
+  align-items: center;
+  justify-content: center;
+  color: rgb(230, 158, 14);
+  font-size: 22px;
+  font-weight: bold;
+}
+
+.matchFirstClubScore {
+  margin-right: 5px;
+}
+
+.matchSecondClubScore {
+  margin-left: 5px;
 }
 
 .versus {
@@ -34,8 +54,9 @@
   display: flex;
   flex: 2;
   justify-content: center;
+  align-items: center;
   padding: 5px;
-  margin-right: 5px;
+  margin: 0 5px;
   cursor: pointer;
   background-color: rgb(54, 114, 204);
   border-radius: 5px;
@@ -49,6 +70,11 @@
 }
 
 @media (max-width: 800px) {
+  .matchFirstClubScore,
+  .matchSecondClubScore {
+    display: none;
+  }
+
   .watchMatch {
     flex: 1;
   }
@@ -56,6 +82,7 @@
   .matchFirstClubName {
     margin-right: 25px;
   }
+
   .matchSecondClubName {
     margin-left: 25px;
   }

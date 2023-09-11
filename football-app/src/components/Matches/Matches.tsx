@@ -30,16 +30,22 @@ const Matches = (): JSX.Element => {
       )}
       <div id="matchesList">
         {matches.map((match, index) => {
-          if (matches.length != index + 1)
-            return <MatchLabel key={"match" + index} match={match} />;
-          else
-            return (
-              <MatchLabel
-                key={"match" + index}
-                match={match}
-                ref={lastMatchElementRef}
-              />
-            );
+          return matches.length != index + 1 ? (
+            <MatchLabel
+              key={"match" + index}
+              match={match}
+              score={match.score}
+              enableWatch={true}
+            />
+          ) : (
+            <MatchLabel
+              key={"match" + index}
+              match={match}
+              score={match.score}
+              enableWatch={true}
+              ref={lastMatchElementRef}
+            />
+          );
         })}
         {loading && (
           <div id="loader">

@@ -33,3 +33,9 @@
     width: 75%;
   }
 }
+
+@media (max-width: 600px) {
+  #matchesList {
+    width: 85%;
+  }
+}

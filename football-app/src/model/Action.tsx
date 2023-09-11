@@ -4,4 +4,5 @@ export interface Action {
   lastTeam: string;
   lastPlayer: number;
   speed: number;
+  score: Array<number>;
 }

@@ -1,7 +1,7 @@
 const express = require("express");
 const cors = require("cors");
 const { Server } = require("socket.io");
-const config = require("./config");
+const config = require("./config/config");
 const app = express();
 const PORT = process.env.PORT || 5000;
 
@@ -61,6 +61,7 @@ for (let i = (clubs.length - 2) / 2 + 1; i < clubs.length - 2 + 1; i += 2) {
     awayTeam: clubs[i + 1],
     currentTeam: "homeTeam",
     currentPlayer: 5,
+    score: [0, 0],
     subscribers: [],
   });
 }
@@ -110,6 +111,7 @@ app.post("/newMatch", (req, res) => {
       awayTeam: match.awayTeam,
       currentTeam: "homeTeam",
       currentPlayer: 5,
+      score: match.score,
       subscribers: [],
     };
     matches.push(footballMatch);
@@ -126,6 +128,7 @@ app.post("/match", (req, res) => {
     id: match.id,
     homeTeam: match.homeTeam,
     awayTeam: match.awayTeam,
+    score: match.score,
   });
 });
 
@@ -140,8 +143,12 @@ const io = new Server(appServer, {
 });
 
 const evaluateAction = (match) => {
+  const score = Math.random();
+  const goal = score < config.scoringChance;
+  if (goal)
+    match.currentTeam == "homeTeam" ? match.score[0]++ : match.score[1]++;
   const loseBall = Math.random();
-  if (loseBall < config.loseBallChance)
+  if (goal || loseBall < config.loseBallChance)
     match.currentTeam == "homeTeam"
       ? (match.currentTeam = "awayTeam")
       : (match.currentTeam = "homeTeam");
@@ -152,6 +159,7 @@ const refreshMatchesData = () => {
   matches.forEach((match, i) => {
     const lastTeam = match.currentTeam;
     const lastPlayer = match.currentPlayer;
+
     const speed =
       Math.floor(Math.random() * (config.variableTime / config.timeStep)) *
         config.timeStep +
@@ -160,12 +168,13 @@ const refreshMatchesData = () => {
     match.subscribers.forEach((socket) => {
       socket.emit(`matches/${i}`, {
         // data: `matches/${i} ${randomNumber}`,
-        matchData: {
+        action: {
           currentTeam: match.currentTeam,
           currentPlayer: match.currentPlayer,
           lastTeam: lastTeam,
           lastPlayer: lastPlayer,
           speed: speed,
+          score: match.score,
         },
       });
     });
@@ -178,7 +187,7 @@ const intervalId = setInterval(() => {
   } catch (error) {
     console.error("Error occurred during refreshing matches data:", error);
   }
-}, 2000);
+}, config.refreshTime);
 
 const findMatchByID = (matchID) => {
   return matches.find((match) => match.id == matchID);

@@ -23,6 +23,7 @@ const matchCreator = (props: {
               <div className="teamSituation">AWAY: </div>
               <div className="teamName">{awayTeam.name}</div>
             </div>
+            <div className="warning">{warning}</div>
             <div className="playMatch" onClick={() => props.playMatchHandle()}>
               PLAY
             </div>

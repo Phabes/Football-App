@@ -54,6 +54,14 @@
   background-color: rgb(91, 213, 64);
 }
 
+.warning {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 1lh;
+  color: rgb(246, 69, 69);
+}
+
 @media (max-width: 1100px) {
   .matchOverflow {
     position: sticky;
