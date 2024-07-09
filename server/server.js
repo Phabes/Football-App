@@ -96,15 +96,21 @@ app.post("/matches", (req, res) => {
 
 app.post("/newMatch", (req, res) => {
   const { match } = req.body;
-  const alreadyUsed = matches.some((singleMatch) => {
+
+  const homeTeamInUse = matches.some((singleMatch) => {
     return (
       singleMatch.homeTeam.id == match.homeTeam.id ||
-      singleMatch.homeTeam.id == match.awayTeam.id ||
-      singleMatch.awayTeam?.id == match.homeTeam.id ||
-      singleMatch.awayTeam?.id == match.awayTeam.id
+      singleMatch.awayTeam.id == match.homeTeam.id
     );
   });
-  if (!alreadyUsed) {
+  const awayTeamInUse = matches.some((singleMatch) => {
+    return (
+      singleMatch.homeTeam.id == match.awayTeam.id ||
+      singleMatch.awayTeam.id == match.awayTeam.id
+    );
+  });
+
+  if (!homeTeamInUse && !awayTeamInUse) {
     const footballMatch = {
       id: currentMatchID++,
       homeTeam: match.homeTeam,
@@ -115,9 +121,19 @@ app.post("/newMatch", (req, res) => {
       subscribers: [],
     };
     matches.push(footballMatch);
-    res.status(200).json({ success: true });
+    res.status(200).json({ success: true, message: "Match created" });
+  } else if (homeTeamInUse && awayTeamInUse) {
+    res
+      .status(200)
+      .json({ success: false, message: `Both teams already in play` });
+  } else if (homeTeamInUse) {
+    res
+      .status(200)
+      .json({ success: false, message: `Home Team already in play` });
   } else {
-    res.status(200).json({ success: false });
+    res
+      .status(200)
+      .json({ success: false, message: `Away Team already in play` });
   }
 });
 
@@ -145,8 +161,9 @@ const io = new Server(appServer, {
 const evaluateAction = (match) => {
   const score = Math.random();
   const goal = score < config.scoringChance;
-  if (goal)
+  if (goal) {
     match.currentTeam == "homeTeam" ? match.score[0]++ : match.score[1]++;
+  }
   const loseBall = Math.random();
   if (goal || loseBall < config.loseBallChance)
     match.currentTeam == "homeTeam"

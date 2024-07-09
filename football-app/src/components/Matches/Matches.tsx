@@ -11,14 +11,20 @@ const Matches = (): JSX.Element => {
   const observer = useRef<HTMLDivElement>(null) as any;
   const lastMatchElementRef = useCallback(
     (node: HTMLDivElement) => {
-      if (loading) return;
-      if (observer.current) observer.current.disconnect();
+      if (loading) {
+        return;
+      }
+      if (observer.current) {
+        observer.current.disconnect();
+      }
       observer.current = new IntersectionObserver((entries) => {
         if (entries[0].isIntersecting && hasMore) {
           setPageNumber((prevPageNumber) => prevPageNumber + 1);
         }
       });
-      if (node) observer.current.observe(node);
+      if (node) {
+        observer.current.observe(node);
+      }
     },
     [loading, hasMore]
   );

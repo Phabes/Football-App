@@ -5,7 +5,7 @@ import { Club } from "../../model/Club";
 import { Match } from "../../model/Match";
 import ClubLabel from "../ClubLabel/ClubLabel";
 import MatchCreator from "../MatchCreator/MatchCreator";
-import config from "../../config/Config";
+import { playMatch } from "../../utils/playMatch";
 import "./Clubs.css";
 
 const Clubs = (): JSX.Element => {
@@ -53,25 +53,26 @@ const Clubs = (): JSX.Element => {
     });
   };
 
-  const playMatch = (match: Match) => {
+  const createMatch = () => {
+    if (!match) {
+      return;
+    }
+
     setWarning("");
-    const requestOptions = {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ match: match }),
-    };
-    fetch(config.url + "newMatch", requestOptions)
-      .then((response) => response.json())
+    const matchCreation = playMatch(match);
+    matchCreation
       .then((data) => {
-        const { success } = data;
+        const { success, message } = data;
         if (success) {
           setSelectedTeams([]);
           setMatch(null);
         } else {
-          setWarning("Team already in play");
+          setWarning(message);
         }
       })
-      .catch((error: any) => {});
+      .catch((error: any) => {
+        setWarning("Problems during creating match");
+      });
   };
 
   return (
@@ -80,7 +81,7 @@ const Clubs = (): JSX.Element => {
         <MatchCreator
           match={match}
           warning={warning}
-          playMatchHandle={() => playMatch(match)}
+          playMatchHandle={createMatch}
         />
       )}
       <div id="clubs">

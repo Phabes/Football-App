@@ -3,6 +3,7 @@ import { io } from "socket.io-client";
 import { Match } from "../../../model/Match";
 import { Action } from "../../../model/Action";
 import config from "../../../config/Config";
+import { getMatchData } from "../../../utils/getMatchData";
 
 export const useMatchData = () => {
   const [match, setMatch] = useState<Match>();
@@ -14,14 +15,9 @@ export const useMatchData = () => {
     socket.connect();
     const params = window.location.pathname.split("/");
 
-    const requestOptions = {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ matchID: params[params.length - 1] }),
-    };
-
-    fetch(config.url + "match", requestOptions)
-      .then((response) => response.json())
+    const matchID = params[params.length - 1];
+    const matchData = getMatchData(matchID);
+    matchData
       .then((match: Match) => {
         setMatch(match);
         setScore(match.score);
