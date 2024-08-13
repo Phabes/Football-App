@@ -18,6 +18,7 @@ export const useMatchesSearch = (pageNumber: number) => {
       body: JSON.stringify({ pageNumber: pageNumber }),
       signal: signal,
     };
+
     fetch(config.url + "matches", requestOptions)
       .then((response) => response.json())
       .then((data) => {
@@ -28,6 +29,7 @@ export const useMatchesSearch = (pageNumber: number) => {
         setLoading(false);
       })
       .catch((error: any) => setError(true));
+
     return () => {
       controller.abort();
     };

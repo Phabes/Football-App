@@ -24,9 +24,21 @@
   color: rgb(91, 213, 64);
 }
 
+.sides {
+  display: flex;
+  width: 100%;
+}
+
+.teams {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  flex: 5;
+}
+
 .team {
   display: flex;
-  justify-content: space-between;
+  justify-content: space-around;
   width: 100%;
 }
 
@@ -39,6 +51,18 @@
   display: flex;
   flex: 2;
   justify-content: center;
+}
+
+#change {
+  display: flex;
+  flex: 1;
+  cursor: pointer;
+}
+
+#changeIMG {
+  display: flex;
+  transform: rotate(90deg);
+  width: 100%;
 }
 
 .playMatch {

@@ -1,15 +1,14 @@
-import "./Map2D.css";
-import { useEffect, useRef, useState } from "react";
-import config from "../../config/Config";
-import { useResize } from "../../hooks/useResize";
+import { useRef, useState } from "react";
 import PitchLines2D from "../PitchLines2D/PitchLines2D";
 import PassLine2D from "../PassLine2D/PassLine2D";
 import Ball2D from "../Ball2D/Ball2D";
 import MatchLabel from "../MatchLabel/MatchLabel";
 import { useMatchData } from "./hooks/useMatchData";
 import { useMapDraw } from "./hooks/useMapDraw";
+import { useResize } from "../../hooks/useResize";
 import { useActionProgress } from "./hooks/useActionProgress";
 import { getCalculations } from "./utils/getCalculations";
+import "./Map2D.css";
 
 const Map2D = (): JSX.Element => {
   const ref = useRef<HTMLDivElement>(null);
