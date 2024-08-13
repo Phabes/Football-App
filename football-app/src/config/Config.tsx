@@ -1,7 +1,7 @@
 const config = {
   url: process.env.FOOTBALL_URL
     ? process.env.FOOTBALL_URL
-    : "http://192.168.0.10:5000/",
+    : "http://localhost:5000/",
   player2dSize: 50,
   halfPitchSize: {
     width: 52.5,
