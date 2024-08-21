@@ -1,18 +1,10 @@
 import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import "./NavBar.css";
+import { useNavBarResize } from "./hooks/useNavBarResize";
 
 const NavBar = (): JSX.Element => {
-  const [active, setActive] = useState<boolean>(false);
-  const windowResizeHandler = () => {
-    if (window.innerWidth > 800) setActive(true);
-    else setActive(false);
-  };
-
-  useEffect(() => {
-    windowResizeHandler();
-    window.addEventListener("resize", windowResizeHandler);
-  }, []);
+  const { active, setActive, windowResizeHandler } = useNavBarResize();
 
   const show = active ? "flex" : "none";
   const barsWidth = active ? "37px" : "30px";

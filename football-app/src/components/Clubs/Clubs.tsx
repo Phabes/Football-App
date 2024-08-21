@@ -1,35 +1,36 @@
-import { useCallback, useRef, useState } from "react";
+import { useRef, useState } from "react";
 import PulseLoader from "react-spinners/PulseLoader";
-import { useClubsSearch } from "../../hooks/useClubsSearch";
-import { Club } from "../../model/Club";
-import { Match } from "../../model/Match";
 import ClubLabel from "../ClubLabel/ClubLabel";
 import MatchCreator from "../MatchCreator/MatchCreator";
-import config from "../../config/Config";
+import { Club } from "../../model/Club";
+import { useClubsSearch } from "../../hooks/useClubsSearch";
+import { useInputFocus } from "../../hooks/useInputFocus";
+import { useLastElement } from "../../hooks/useLastElement";
+import { playMatch } from "../../utils/playMatch";
 import "./Clubs.css";
 
 const Clubs = (): JSX.Element => {
+  const ref = useRef<HTMLInputElement>(null);
+  const observer = useRef<HTMLDivElement>(null) as any;
   const [query, setQuery] = useState<string>("");
   const [pageNumber, setPageNumber] = useState<number>(0);
   const [selectedTeams, setSelectedTeams] = useState<Array<Club>>([]);
-  const [match, setMatch] = useState<Match | null>(null);
-  const { loading, error, clubs, hasMore } = useClubsSearch(query, pageNumber);
   const [warning, setWarning] = useState<string>("");
 
-  const observer = useRef<HTMLDivElement>(null) as any;
-  const lastClubElementRef = useCallback(
-    (node: HTMLDivElement) => {
-      if (loading) return;
-      if (observer.current) observer.current.disconnect();
-      observer.current = new IntersectionObserver((entries) => {
-        if (entries[0].isIntersecting && hasMore) {
-          setPageNumber((prevPageNumber) => prevPageNumber + 1);
-        }
-      });
-      if (node) observer.current.observe(node);
-    },
-    [loading, hasMore]
+  useInputFocus(ref);
+  const { loading, error, clubs, hasMore } = useClubsSearch(query, pageNumber);
+  const { lastElementRef } = useLastElement(
+    loading,
+    hasMore,
+    observer,
+    setPageNumber
   );
+
+  const match = {
+    homeTeam: selectedTeams[0],
+    awayTeam: selectedTeams.length == 2 ? selectedTeams[1] : undefined,
+    score: [0, 0],
+  };
 
   const searchHandler = (query: string) => {
     setQuery(query);
@@ -38,68 +39,65 @@ const Clubs = (): JSX.Element => {
 
   const selectClub = (club: Club) => {
     setWarning("");
-    setSelectedTeams((prevSelecteTeams) => {
-      if (prevSelecteTeams.length == 2) prevSelecteTeams.shift();
-      if (!prevSelecteTeams.includes(club)) {
-        prevSelecteTeams.push(club);
-        const match: Match = {
-          homeTeam: prevSelecteTeams[0],
-          score: [0, 0],
-        };
-        if (prevSelecteTeams.length == 2) match.awayTeam = prevSelecteTeams[1];
-        setMatch(match);
+    setSelectedTeams((prevSelectedTeams) => {
+      const selectedClubs: Club[] = [];
+      if (prevSelectedTeams.length != 0) {
+        selectedClubs.push(prevSelectedTeams.pop()!);
       }
-      return prevSelecteTeams;
+      if (!selectedClubs.includes(club)) {
+        selectedClubs.push(club);
+      } else {
+        if (prevSelectedTeams.length == 1) {
+          selectedClubs.push(prevSelectedTeams.pop()!);
+        }
+      }
+      return selectedClubs;
     });
   };
 
-  const playMatch = (match: Match) => {
+  const createMatch = () => {
+    if (!match.awayTeam) {
+      return;
+    }
+
     setWarning("");
-    const requestOptions = {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ match: match }),
-    };
-    fetch(config.url + "newMatch", requestOptions)
-      .then((response) => response.json())
+    const matchCreation = playMatch(match);
+    matchCreation
       .then((data) => {
-        const { success } = data;
+        const { success, message } = data;
         if (success) {
           setSelectedTeams([]);
-          setMatch(null);
         } else {
-          setWarning("Team already in play");
+          setWarning(message);
         }
       })
-      .catch((error: any) => {});
+      .catch((error: any) => {
+        setWarning("Problems during creating match");
+      });
   };
 
   return (
     <div id="clubsFlow">
-      {match != null && (
+      {selectedTeams.length != 0 && (
         <MatchCreator
           match={match}
           warning={warning}
-          playMatchHandle={() => playMatch(match)}
+          playMatchHandle={createMatch}
+          switchClubs={selectClub}
         />
       )}
       <div id="clubs">
         <div id="queryLabel">
           <input
+            ref={ref}
             value={query}
             placeholder="Search Club"
-            autoFocus
-            onBlur={(e) => {
-              e.target.focus({
-                preventScroll: true,
-              });
-            }}
             onChange={(e) => searchHandler(e.target.value)}
           />
         </div>
         <div id="clubsList">
           {clubs.map((club, index) => {
-            if (clubs.length != index + 1)
+            if (clubs.length != index + 1) {
               return (
                 <ClubLabel
                   key={"club" + index}
@@ -107,15 +105,16 @@ const Clubs = (): JSX.Element => {
                   clickHandle={() => selectClub(club)}
                 />
               );
-            else
+            } else {
               return (
                 <ClubLabel
                   key={"club" + index}
                   club={club}
                   clickHandle={() => selectClub(club)}
-                  ref={lastClubElementRef}
+                  ref={lastElementRef}
                 />
               );
+            }
           })}
           {loading && (
             <div id="loader">

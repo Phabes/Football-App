@@ -1,6 +1,5 @@
-import "./PitchLines2D.css";
-
 import config from "../../config/Config";
+import "./PitchLines2D.css";
 
 const PitchLines2D = (props: {
   width: number;

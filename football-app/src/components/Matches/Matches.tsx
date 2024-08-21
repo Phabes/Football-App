@@ -1,7 +1,8 @@
-import { useCallback, useRef, useState } from "react";
+import { useRef, useState } from "react";
 import PulseLoader from "react-spinners/PulseLoader";
-import { useMatchesSearch } from "../../hooks/useMatchesSearch";
 import MatchLabel from "../MatchLabel/MatchLabel";
+import { useMatchesSearch } from "../../hooks/useMatchesSearch";
+import { useLastElement } from "../../hooks/useLastElement";
 import "./Matches.css";
 
 const Matches = (): JSX.Element => {
@@ -9,18 +10,11 @@ const Matches = (): JSX.Element => {
   const { loading, error, matches, hasMore } = useMatchesSearch(pageNumber);
 
   const observer = useRef<HTMLDivElement>(null) as any;
-  const lastMatchElementRef = useCallback(
-    (node: HTMLDivElement) => {
-      if (loading) return;
-      if (observer.current) observer.current.disconnect();
-      observer.current = new IntersectionObserver((entries) => {
-        if (entries[0].isIntersecting && hasMore) {
-          setPageNumber((prevPageNumber) => prevPageNumber + 1);
-        }
-      });
-      if (node) observer.current.observe(node);
-    },
-    [loading, hasMore]
+  const { lastElementRef } = useLastElement(
+    loading,
+    hasMore,
+    observer,
+    setPageNumber
   );
 
   return (
@@ -43,7 +37,7 @@ const Matches = (): JSX.Element => {
               match={match}
               score={match.score}
               enableWatch={true}
-              ref={lastMatchElementRef}
+              ref={lastElementRef}
             />
           );
         })}

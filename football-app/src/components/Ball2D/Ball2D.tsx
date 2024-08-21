@@ -1,7 +1,7 @@
-import "./Ball2D.css";
-import football from "../../images/football.png";
-import { Point } from "../../model/Point";
 import { RefObject } from "react";
+import { Point } from "../../model/Point";
+import football from "../../images/football.png";
+import "./Ball2D.css";
 
 const Ball2D = (props: {
   ballRef: RefObject<HTMLDivElement>;

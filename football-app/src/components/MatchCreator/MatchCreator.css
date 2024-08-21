@@ -10,7 +10,7 @@
   display: flex;
   flex-direction: column;
   align-items: center;
-  width: 200px;
+  width: 250px;
   padding: 15px;
   font-size: 18px;
   font-weight: bold;
@@ -24,9 +24,21 @@
   color: rgb(91, 213, 64);
 }
 
+.sides {
+  display: flex;
+  width: 100%;
+}
+
+.teams {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  flex: 5;
+}
+
 .team {
   display: flex;
-  justify-content: space-between;
+  justify-content: space-around;
   width: 100%;
 }
 
@@ -39,6 +51,18 @@
   display: flex;
   flex: 2;
   justify-content: center;
+}
+
+#change {
+  display: flex;
+  flex: 1;
+  cursor: pointer;
+}
+
+#changeIMG {
+  display: flex;
+  transform: rotate(90deg);
+  width: 100%;
 }
 
 .playMatch {
@@ -62,7 +86,7 @@
   color: rgb(246, 69, 69);
 }
 
-@media (max-width: 1100px) {
+@media (max-width: 1250px) {
   .matchOverflow {
     position: sticky;
     background-color: rgb(81, 81, 81);

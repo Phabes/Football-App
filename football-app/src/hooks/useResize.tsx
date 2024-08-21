@@ -1,4 +1,5 @@
 import { RefObject, useEffect, useState } from "react";
+import config from "../config/Config";
 
 export const useResize = (
   pitchRef: RefObject<HTMLDivElement | null>,
@@ -6,14 +7,21 @@ export const useResize = (
 ) => {
   const [width, setWidth] = useState(0);
   const [ballSize, setBallSize] = useState(0);
-  // const [height, setHeight] = useState(0);
+
+  const height =
+    (width * config.halfPitchSize.height) / config.halfPitchSize.width;
 
   const handleResize = () => {
-    if (pitchRef.current) {
-      setWidth(pitchRef.current.clientWidth);
-      // setHeight(myRef.current.clientHeight);
+    if (!pitchRef.current) {
+      return;
     }
-    if (ballRef.current) setBallSize(ballRef.current.clientWidth);
+
+    setWidth(pitchRef.current.clientWidth);
+
+    if (!ballRef.current) {
+      return;
+    }
+    setBallSize(ballRef.current.clientWidth);
   };
 
   useEffect(() => {
@@ -27,6 +35,5 @@ export const useResize = (
     };
   }, []);
 
-  return { width, ballSize, handleResize };
-  // return { width, height };
+  return { width, height, ballSize, handleResize };
 };

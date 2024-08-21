@@ -1,5 +1,5 @@
-import "./Player2D.css";
 import config from "../../config/Config";
+import "./Player2D.css";
 
 const Player2D = (props: {
   left: number;
