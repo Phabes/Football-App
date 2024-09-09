@@ -1,6 +1,6 @@
 const config = {
   itemsPerPage: 20,
-  refreshTime: 2000,
+  refreshTime: 1000,
   minTime: 1000,
   variableTime: 2000,
   timeStep: 20,

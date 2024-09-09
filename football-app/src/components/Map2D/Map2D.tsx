@@ -1,4 +1,4 @@
-import { useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import PitchLines2D from "../PitchLines2D/PitchLines2D";
 import PassLine2D from "../PassLine2D/PassLine2D";
 import Ball2D from "../Ball2D/Ball2D";
@@ -8,6 +8,7 @@ import { useMapDraw } from "./hooks/useMapDraw";
 import { useResize } from "../../hooks/useResize";
 import { useActionProgress } from "./hooks/useActionProgress";
 import { getCalculations } from "./utils/getCalculations";
+import live from "../../images/live.png";
 import "./Map2D.css";
 
 const Map2D = (): JSX.Element => {
@@ -15,7 +16,7 @@ const Map2D = (): JSX.Element => {
   const ballRef = useRef<HTMLDivElement>(null);
   const [action, setAction] = useState<number>(-1);
   const { width, height, ballSize, handleResize } = useResize(ref, ballRef);
-  const { match, score, queue } = useMatchData();
+  const { match, queue } = useMatchData();
   const { line, homeTeam, awayTeam } = useMapDraw(
     match,
     width,
@@ -31,6 +32,13 @@ const Map2D = (): JSX.Element => {
     handleResize
   );
   const { xStep, yStep } = getCalculations(line, queue, action);
+
+  const backToLive = () => {
+    const lifeAction = queue.length - 1;
+    setAction(lifeAction);
+  };
+
+  const streamLive = action > queue.length - 5;
 
   return (
     <div className="map2D">
@@ -69,7 +77,22 @@ const Map2D = (): JSX.Element => {
             />
           )}
         </div>
-        <div>{JSON.stringify(queue[action])}</div>
+        <div id="timeline">
+          <div id="backToLive" onClick={backToLive}>
+            <img
+              src={live}
+              alt="live"
+              id="liveIMG"
+              className={streamLive ? "" : "backToLiveIMG"}
+            />
+          </div>
+          <div id="backToLiveInfo">
+            {streamLive ? <>You are watching live</> : <>Back to live</>}
+          </div>
+        </div>
+        <div id="matchInfo">
+          <div>{JSON.stringify(queue[action])}</div>
+        </div>
       </div>
     </div>
   );
