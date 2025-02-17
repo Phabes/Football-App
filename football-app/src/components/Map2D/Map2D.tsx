@@ -10,11 +10,13 @@ import { useActionProgress } from "./hooks/useActionProgress";
 import { getCalculations } from "./utils/getCalculations";
 import live from "../../images/live.png";
 import "./Map2D.css";
+import Slider from "../Slider/Slider";
 
 const Map2D = (): JSX.Element => {
   const ref = useRef<HTMLDivElement>(null);
   const ballRef = useRef<HTMLDivElement>(null);
   const [action, setAction] = useState<number>(-1);
+  const [action2, setAction2] = useState<number>(0);
   const { width, height, ballSize, handleResize } = useResize(ref, ballRef);
   const { match, queue } = useMatchData();
   const { line, homeTeam, awayTeam } = useMapDraw(
@@ -77,6 +79,14 @@ const Map2D = (): JSX.Element => {
             />
           )}
         </div>
+        <Slider
+          totalActions={queue.length}
+          currentAction={action2}
+          onChange={(value) => {
+            console.log(action2);
+            setAction2(value);
+          }}
+        />
         <div id="timeline">
           <div id="backToLive" onClick={backToLive}>
             <img

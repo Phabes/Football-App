@@ -43,8 +43,19 @@ const randomColor = () => {
   return availableColors[color];
 };
 
+const triggerTimeout = (match) => {
+  const speed = refreshMatchData(match);
+  if (match.id == 0) {
+    console.log(`Match ${match.id} is updating... ${speed}`);
+  }
+
+  // const randomDelay = Math.floor(Math.random() * (5000 - 1000 + 1)) + 1000;
+
+  match.interval = setTimeout(triggerTimeout, speed, match);
+};
+
 const clubs = [];
-for (let i = 0; i < 120; i++) {
+for (let i = 0; i < 10; i++) {
   clubs.push({
     id: i,
     name: `club_name_${i}`,
@@ -55,7 +66,8 @@ for (let i = 0; i < 120; i++) {
 const matches = [];
 let currentMatchID = 0;
 for (let i = (clubs.length - 2) / 2 + 1; i < clubs.length - 2 + 1; i += 2) {
-  matches.push({
+  const randomDelay = Math.floor(Math.random() * (5000 - 1000 + 1)) + 1000;
+  const match = {
     id: currentMatchID++,
     homeTeam: clubs[i],
     awayTeam: clubs[i + 1],
@@ -63,7 +75,11 @@ for (let i = (clubs.length - 2) / 2 + 1; i < clubs.length - 2 + 1; i += 2) {
     currentPlayer: 5,
     score: [0, 0],
     subscribers: [],
-  });
+    actions: [],
+    interval: null,
+  };
+  match.interval = setTimeout(triggerTimeout, randomDelay, match);
+  matches.push(match);
 }
 const itemsPerPage = config.itemsPerPage;
 
@@ -86,7 +102,8 @@ app.post("/matches", (req, res) => {
   const end = Math.min((pageNumber + 1) * itemsPerPage, matches.length);
   const wantedMatches = matches.slice(start, end);
   const finalWantedMatches = wantedMatches.map(
-    ({ ["subscribers"]: _, ...rest }) => rest
+    ({ currentTeam, currentPlayer, subscribers, actions, interval, ...rest }) =>
+      rest
   );
   res.status(200).json({
     matches: finalWantedMatches,
@@ -145,6 +162,7 @@ app.post("/match", (req, res) => {
     homeTeam: match.homeTeam,
     awayTeam: match.awayTeam,
     score: match.score,
+    numberOfActions: match.actions.length,
   });
 });
 
@@ -172,39 +190,33 @@ const evaluateAction = (match) => {
   match.currentPlayer = Math.floor(Math.random() * 11);
 };
 
-const refreshMatchesData = () => {
-  matches.forEach((match, i) => {
-    const lastTeam = match.currentTeam;
-    const lastPlayer = match.currentPlayer;
+const refreshMatchData = (match) => {
+  const lastTeam = match.currentTeam;
+  const lastPlayer = match.currentPlayer;
 
-    const speed =
-      Math.floor(Math.random() * (config.variableTime / config.timeStep)) *
-        config.timeStep +
-      config.minTime;
-    evaluateAction(match);
-    match.subscribers.forEach((socket) => {
-      socket.emit(`matches/${i}`, {
-        // data: `matches/${i} ${randomNumber}`,
-        action: {
-          currentTeam: match.currentTeam,
-          currentPlayer: match.currentPlayer,
-          lastTeam: lastTeam,
-          lastPlayer: lastPlayer,
-          speed: speed,
-          score: match.score,
-        },
-      });
+  const speed =
+    Math.floor(Math.random() * (config.variableTime / config.timeStep)) *
+      config.timeStep +
+    config.minTime;
+  evaluateAction(match);
+  const action = {
+    currentTeam: match.currentTeam,
+    currentPlayer: match.currentPlayer,
+    lastTeam: lastTeam,
+    lastPlayer: lastPlayer,
+    speed: speed,
+    score: match.score,
+  };
+  match.actions.push(action);
+  match.subscribers.forEach((socket) => {
+    socket.emit(`matches/${match.id}`, {
+      // data: `matches/${i} ${randomNumber}`,
+      action,
     });
   });
-};
 
-const intervalId = setInterval(() => {
-  try {
-    refreshMatchesData();
-  } catch (error) {
-    console.error("Error occurred during refreshing matches data:", error);
-  }
-}, config.refreshTime);
+  return speed;
+};
 
 const findMatchByID = (matchID) => {
   return matches.find((match) => match.id == matchID);
@@ -228,6 +240,8 @@ io.on("connection", (socket) => {
   socket.on(`matches`, (data) => {
     console.log("Received message:", data);
     const match = findMatchByID(data.matchID);
-    if (!match.subscribers.includes(socket)) match.subscribers.push(socket);
+    if (!match.subscribers.includes(socket)) {
+      match.subscribers.push(socket);
+    }
   });
 });

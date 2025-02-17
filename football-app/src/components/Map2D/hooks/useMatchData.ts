@@ -1,12 +1,12 @@
 import { useEffect, useState } from "react";
 import { io } from "socket.io-client";
-import { Match } from "../../../model/Match";
+import { MatchDetails } from "../../../model/MatchDetails";
 import { Action } from "../../../model/Action";
 import config from "../../../config/Config";
 import { getMatchData } from "../../../utils/getMatchData";
 
 export const useMatchData = () => {
-  const [match, setMatch] = useState<Match>();
+  const [match, setMatch] = useState<MatchDetails>();
   const [queue, setQueue] = useState<Action[]>([]);
 
   useEffect(() => {
@@ -17,7 +17,7 @@ export const useMatchData = () => {
     const matchID = params[params.length - 1];
     const matchData = getMatchData(matchID);
     matchData
-      .then((match: Match) => {
+      .then((match: MatchDetails) => {
         setMatch(match);
       })
       .catch((error: any) => console.log(error));

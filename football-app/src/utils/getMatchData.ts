@@ -1,7 +1,7 @@
-import { Match } from "../model/Match";
+import { MatchDetails } from "../model/MatchDetails";
 import config from "../config/Config";
 
-export const getMatchData = async (matchID: string): Promise<Match> => {
+export const getMatchData = async (matchID: string): Promise<MatchDetails> => {
   const requestOptions = {
     method: "POST",
     headers: { "Content-Type": "application/json" },
