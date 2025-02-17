@@ -7,7 +7,6 @@ import { getMatchData } from "../../../utils/getMatchData";
 
 export const useMatchData = () => {
   const [match, setMatch] = useState<Match>();
-  const [score, setScore] = useState<number[]>([0, 0]);
   const [queue, setQueue] = useState<Action[]>([]);
 
   useEffect(() => {
@@ -20,7 +19,6 @@ export const useMatchData = () => {
     matchData
       .then((match: Match) => {
         setMatch(match);
-        setScore(match.score);
       })
       .catch((error: any) => console.log(error));
 
@@ -51,5 +49,5 @@ export const useMatchData = () => {
     };
   }, []);
 
-  return { match, score, queue };
+  return { match, queue };
 };

@@ -29,6 +29,49 @@
   position: relative;
 }
 
+#matchInfo {
+  width: 75%;
+  margin: 10px 0;
+}
+
+#timeline {
+  width: 75%;
+  height: 50px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2), 0 6px 20px 0 rgba(0, 0, 0, 0.2);
+  border-radius: 0 0 20px 20px;
+}
+
+#backToLive {
+  cursor: pointer;
+  display: flex;
+  justify-content: center;
+  height: 100%;
+}
+
+#liveIMG {
+  scale: 0.8;
+  transition: scale 0.5s ease;
+}
+
+#liveIMG.backToLiveIMG {
+  animation: sizeChange 2s infinite;
+}
+
+@keyframes sizeChange {
+  0% {
+    scale: 0.8;
+  }
+  50% {
+    scale: 1;
+  }
+  100% {
+    scale: 0.8;
+  }
+}
+
 @media (max-width: 1200px) {
   #matchStream {
     width: 100%;
