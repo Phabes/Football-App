@@ -7,6 +7,7 @@ import { getMatchData } from "../../../utils/getMatchData";
 
 export const useMatchData = () => {
   const [match, setMatch] = useState<MatchDetails>();
+  const [totalNumberOfActions, setTotalNumberOfActions] = useState<number>(-1);
   const [queue, setQueue] = useState<Action[]>([]);
 
   useEffect(() => {
@@ -29,8 +30,12 @@ export const useMatchData = () => {
       });
     };
 
-    const handleMatchesData = (data: { action: Action }) => {
+    const handleMatchesData = (data: {
+      totalNumberOfActions: number;
+      action: Action;
+    }) => {
       setQueue((prev) => [...prev, data.action]);
+      setTotalNumberOfActions(data.totalNumberOfActions);
     };
 
     const handleDisconnect = () => {
@@ -49,5 +54,5 @@ export const useMatchData = () => {
     };
   }, []);
 
-  return { match, queue };
+  return { match, queue, totalNumberOfActions };
 };

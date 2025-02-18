@@ -45,14 +45,12 @@ const randomColor = () => {
 
 const triggerTimeout = (match) => {
   const speed = refreshMatchData(match);
-  if (match.id == 0) {
-    console.log(`Match ${match.id} is updating... ${speed}`);
-  }
-
-  // const randomDelay = Math.floor(Math.random() * (5000 - 1000 + 1)) + 1000;
 
   match.interval = setTimeout(triggerTimeout, speed, match);
 };
+
+const usersData = new Map();
+// const uniqueUsers = new Set();
 
 const clubs = [];
 for (let i = 0; i < 10; i++) {
@@ -66,7 +64,6 @@ for (let i = 0; i < 10; i++) {
 const matches = [];
 let currentMatchID = 0;
 for (let i = (clubs.length - 2) / 2 + 1; i < clubs.length - 2 + 1; i += 2) {
-  const randomDelay = Math.floor(Math.random() * (5000 - 1000 + 1)) + 1000;
   const match = {
     id: currentMatchID++,
     homeTeam: clubs[i],
@@ -74,11 +71,10 @@ for (let i = (clubs.length - 2) / 2 + 1; i < clubs.length - 2 + 1; i += 2) {
     currentTeam: "homeTeam",
     currentPlayer: 5,
     score: [0, 0],
-    subscribers: [],
     actions: [],
     interval: null,
   };
-  match.interval = setTimeout(triggerTimeout, randomDelay, match);
+  match.interval = setTimeout(triggerTimeout, 0, match);
   matches.push(match);
 }
 const itemsPerPage = config.itemsPerPage;
@@ -102,8 +98,7 @@ app.post("/matches", (req, res) => {
   const end = Math.min((pageNumber + 1) * itemsPerPage, matches.length);
   const wantedMatches = matches.slice(start, end);
   const finalWantedMatches = wantedMatches.map(
-    ({ currentTeam, currentPlayer, subscribers, actions, interval, ...rest }) =>
-      rest
+    ({ currentTeam, currentPlayer, actions, interval, ...rest }) => rest
   );
   res.status(200).json({
     matches: finalWantedMatches,
@@ -135,8 +130,10 @@ app.post("/newMatch", (req, res) => {
       currentTeam: "homeTeam",
       currentPlayer: 5,
       score: match.score,
-      subscribers: [],
+      actions: [],
+      interval: null,
     };
+    footballMatch.interval = setTimeout(triggerTimeout, 0, footballMatch);
     matches.push(footballMatch);
     res.status(200).json({ success: true, message: "Match created" });
   } else if (homeTeamInUse && awayTeamInUse) {
@@ -198,8 +195,11 @@ const refreshMatchData = (match) => {
     Math.floor(Math.random() * (config.variableTime / config.timeStep)) *
       config.timeStep +
     config.minTime;
+
   evaluateAction(match);
+
   const action = {
+    index: match.actions.length + 1,
     currentTeam: match.currentTeam,
     currentPlayer: match.currentPlayer,
     lastTeam: lastTeam,
@@ -208,12 +208,6 @@ const refreshMatchData = (match) => {
     score: match.score,
   };
   match.actions.push(action);
-  match.subscribers.forEach((socket) => {
-    socket.emit(`matches/${match.id}`, {
-      // data: `matches/${i} ${randomNumber}`,
-      action,
-    });
-  });
 
   return speed;
 };
@@ -222,26 +216,71 @@ const findMatchByID = (matchID) => {
   return matches.find((match) => match.id == matchID);
 };
 
-const deleteIfExists = (arr, value) => {
-  const index = arr.indexOf(value);
-  if (index !== -1) arr.splice(index, 1);
+const emitNextAction = (socket) => {
+  const [matchID, matchAction, timeoutID] = usersData.get(socket.id);
+
+  clearTimeout(timeoutID);
+
+  const match = findMatchByID(matchID);
+
+  if (matchAction == 0 && match.actions.length == 0) {
+    usersData.set(socket.id, [
+      matchID,
+      0,
+      setTimeout(emitNextAction, config.minTime + config.variableTime, socket),
+    ]);
+    return;
+  }
+
+  if (matchAction >= match.actions.length) {
+    usersData.set(socket.id, [
+      matchID,
+      matchAction,
+      setTimeout(
+        emitNextAction,
+        match.actions[match.actions.length - 1].speed,
+        socket
+      ),
+    ]);
+    return;
+  }
+
+  socket.emit(`matches/${match.id}`, {
+    // actionNumber: matchAction,
+    totalNumberOfActions: match.actions.length,
+    action: match.actions[matchAction],
+  });
+
+  const nextAction = matchAction + 1;
+
+  usersData.set(socket.id, [
+    matchID,
+    nextAction,
+    setTimeout(emitNextAction, match.actions[matchAction].speed, socket),
+  ]);
 };
 
 io.on("connection", (socket) => {
-  console.log(`user id ${socket.id}`);
+  console.log(`user id ${socket.id} connected`);
 
   socket.on("disconnect", () => {
-    matches.forEach((match) => {
-      deleteIfExists(match.subscribers, socket);
-    });
-    console.log("A user disconnected");
+    console.log(`A user ${socket.id} disconnected`);
+    if (!usersData.has(socket.id)) {
+      return;
+    }
+    const [matchID, matchAction, timeoutID] = usersData.get(socket.id);
+    clearTimeout(timeoutID);
+    usersData.delete(socket.id);
   });
 
   socket.on(`matches`, (data) => {
     console.log("Received message:", data);
     const match = findMatchByID(data.matchID);
-    if (!match.subscribers.includes(socket)) {
-      match.subscribers.push(socket);
-    }
+
+    usersData.set(socket.id, [
+      match.id,
+      Math.max(match.actions.length - 1, 0),
+      setTimeout(emitNextAction, 0, socket),
+    ]);
   });
 });

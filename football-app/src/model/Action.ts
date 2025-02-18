@@ -1,4 +1,5 @@
 export interface Action {
+  index: number;
   currentTeam: string;
   currentPlayer: number;
   lastTeam: string;
