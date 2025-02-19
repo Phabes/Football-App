@@ -38,10 +38,18 @@
   width: 75%;
   height: 50px;
   display: flex;
+  justify-content: space-between;
   align-items: center;
   gap: 10px;
   box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2), 0 6px 20px 0 rgba(0, 0, 0, 0.2);
   border-radius: 0 0 20px 20px;
+}
+
+#liveInfo {
+  display: flex;
+  height: 100%;
+  align-items: center;
+  flex: 4;
 }
 
 #backToLive {
@@ -72,8 +80,16 @@
   }
 }
 
+#backToLiveInfo {
+  flex: 1;
+}
+
 @media (max-width: 1200px) {
   #matchStream {
+    width: 100%;
+  }
+
+  #timeline {
     width: 100%;
   }
 }
@@ -82,6 +98,10 @@
   .mapContent .matchFirstClubScore,
   .mapContent .matchSecondClubScore {
     display: flex;
+  }
+
+  #backToLiveInfo {
+    display: none;
   }
 }
 

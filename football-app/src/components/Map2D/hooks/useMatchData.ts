@@ -1,14 +1,23 @@
 import { useEffect, useState } from "react";
 import { io } from "socket.io-client";
-import { MatchDetails } from "../../../model/MatchDetails";
+import { Match } from "../../../model/Match";
 import { Action } from "../../../model/Action";
 import config from "../../../config/Config";
 import { getMatchData } from "../../../utils/getMatchData";
+import { getSpecificAction } from "../../../utils/getSpecificAction";
 
 export const useMatchData = () => {
-  const [match, setMatch] = useState<MatchDetails>();
-  const [totalNumberOfActions, setTotalNumberOfActions] = useState<number>(-1);
+  const [socketID, setSocketID] = useState<string>("");
+  const [match, setMatch] = useState<Match>();
+  const [totalNumberOfActions, setTotalNumberOfActions] = useState<number>(0);
   const [queue, setQueue] = useState<Action[]>([]);
+  const [action, setAction] = useState<number>(-1);
+
+  const getAction = async (value: number) => {
+    const data = await getSpecificAction(socketID, value);
+    setAction(0);
+    setQueue([data]);
+  };
 
   useEffect(() => {
     const socket = io(config.url);
@@ -18,13 +27,14 @@ export const useMatchData = () => {
     const matchID = params[params.length - 1];
     const matchData = getMatchData(matchID);
     matchData
-      .then((match: MatchDetails) => {
+      .then((match: Match) => {
         setMatch(match);
       })
       .catch((error: any) => console.log(error));
 
     const handleConnect = () => {
       console.log(`Connected ${socket.id}`);
+      setSocketID(socket.id);
       socket.emit(`matches`, {
         matchID: params[params.length - 1],
       });
@@ -54,5 +64,5 @@ export const useMatchData = () => {
     };
   }, []);
 
-  return { match, queue, totalNumberOfActions };
+  return { match, queue, totalNumberOfActions, action, setAction, getAction };
 };

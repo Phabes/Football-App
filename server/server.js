@@ -159,7 +159,22 @@ app.post("/match", (req, res) => {
     homeTeam: match.homeTeam,
     awayTeam: match.awayTeam,
     score: match.score,
-    numberOfActions: match.actions.length,
+  });
+});
+
+app.post("/user", (req, res) => {
+  const { socketID, actionIndex } = req.body;
+  const [matchID, matchAction, timeoutID, socket] = usersData.get(socketID);
+  clearTimeout(timeoutID);
+  const match = findMatchByID(matchID);
+  usersData.set(socketID, [
+    matchID,
+    actionIndex + 1,
+    setTimeout(emitNextAction, match.actions[actionIndex].speed, socket),
+    socket,
+  ]);
+  res.status(200).json({
+    ...match.actions[actionIndex],
   });
 });
 
@@ -199,13 +214,13 @@ const refreshMatchData = (match) => {
   evaluateAction(match);
 
   const action = {
-    index: match.actions.length + 1,
+    index: match.actions.length,
     currentTeam: match.currentTeam,
     currentPlayer: match.currentPlayer,
     lastTeam: lastTeam,
     lastPlayer: lastPlayer,
     speed: speed,
-    score: match.score,
+    score: [match.score[0], match.score[1]],
   };
   match.actions.push(action);
 
@@ -217,7 +232,7 @@ const findMatchByID = (matchID) => {
 };
 
 const emitNextAction = (socket) => {
-  const [matchID, matchAction, timeoutID] = usersData.get(socket.id);
+  const [matchID, matchAction, timeoutID, _] = usersData.get(socket.id);
 
   clearTimeout(timeoutID);
 
@@ -228,6 +243,7 @@ const emitNextAction = (socket) => {
       matchID,
       0,
       setTimeout(emitNextAction, config.minTime + config.variableTime, socket),
+      socket,
     ]);
     return;
   }
@@ -241,6 +257,8 @@ const emitNextAction = (socket) => {
         match.actions[match.actions.length - 1].speed,
         socket
       ),
+
+      socket,
     ]);
     return;
   }
@@ -257,6 +275,7 @@ const emitNextAction = (socket) => {
     matchID,
     nextAction,
     setTimeout(emitNextAction, match.actions[matchAction].speed, socket),
+    socket,
   ]);
 };
 
@@ -281,6 +300,7 @@ io.on("connection", (socket) => {
       match.id,
       Math.max(match.actions.length - 1, 0),
       setTimeout(emitNextAction, 0, socket),
+      socket,
     ]);
   });
 });

@@ -16,10 +16,9 @@ import "./Map2D.css";
 const Map2D = (): JSX.Element => {
   const ref = useRef<HTMLDivElement>(null);
   const ballRef = useRef<HTMLDivElement>(null);
-  const [action, setAction] = useState<number>(-1);
-  const [action2, setAction2] = useState<number>(0);
   const { width, height, ballSize, handleResize } = useResize(ref, ballRef);
-  const { match, queue, totalNumberOfActions } = useMatchData();
+  const { match, queue, totalNumberOfActions, action, setAction, getAction } =
+    useMatchData();
   const { line, homeTeam, awayTeam } = useMapDraw(
     match,
     width,
@@ -34,74 +33,63 @@ const Map2D = (): JSX.Element => {
     line,
     handleResize
   );
-  const { xStep, yStep } = getCalculations(line, queue, action);
+  const { xStep, yStep } = getCalculations(started, line, queue, action);
 
-  const backToLive = () => {
-    const lifeAction = queue.length - 1;
-    setAction(lifeAction);
-  };
-
-  const streamLive = action > queue.length - 5;
+  const streamLive =
+    started && queue[action]
+      ? totalNumberOfActions - (queue[action].index + 1) <= 5
+      : false;
 
   return (
-    <>
-      <div className="map2D">
-        <div className="mapContent">
-          {!match && (
-            <div id="loader">
-              <PulseLoader color="rgb(0, 195, 255)" speedMultiplier={0.7} />
-            </div>
-          )}
-          {match && (
-            <MatchLabel
-              match={match}
-              score={started ? queue[action].score : match.score}
-              enableWatch={false}
+    <div className="map2D">
+      <div className="mapContent">
+        {!match && (
+          <div id="loader">
+            <PulseLoader color="rgb(0, 195, 255)" speedMultiplier={0.7} />
+          </div>
+        )}
+        {match && (
+          <MatchLabel
+            match={match}
+            score={started ? queue[action].score : match.score}
+            enableWatch={false}
+          />
+        )}
+        <div id="matchStream" style={{ height: height }}>
+          <div ref={ref} id="homeTeam" className="halfField">
+            {homeTeam}
+          </div>
+          <div id="awayTeam" className="halfField">
+            {awayTeam}
+          </div>
+          {height > 0 && <PitchLines2D width={width} height={height} />}
+          {started && <PassLine2D line={line} />}
+          {started ? (
+            <Ball2D
+              ballRef={ballRef}
+              posistion={{
+                top: line.start.top + yStep * tick - ballSize / 2,
+                left: line.start.left + xStep * tick - ballSize / 2,
+              }}
+            />
+          ) : (
+            <Ball2D
+              ballRef={ballRef}
+              posistion={{
+                top: height / 2 - ballSize / 2,
+                left: width - ballSize / 2,
+              }}
             />
           )}
-          <div id="matchStream" style={{ height: height }}>
-            <div ref={ref} id="homeTeam" className="halfField">
-              {homeTeam}
-            </div>
-            <div id="awayTeam" className="halfField">
-              {awayTeam}
-            </div>
-            {height > 0 && <PitchLines2D width={width} height={height} />}
-            {started && <PassLine2D line={line} />}
-            {started ? (
-              <Ball2D
-                ballRef={ballRef}
-                posistion={{
-                  top: line.start.top + yStep * tick - ballSize / 2,
-                  left: line.start.left + xStep * tick - ballSize / 2,
-                }}
-              />
-            ) : (
-              <Ball2D
-                ballRef={ballRef}
-                posistion={{
-                  top: height / 2 - ballSize / 2,
-                  left: width - ballSize / 2,
-                }}
-              />
-            )}
-          </div>
-          {match && (
-            <>
-              <Slider
-                totalActions={totalNumberOfActions}
-                currentAction={
-                  started
-                    ? Math.min(queue[action].index, totalNumberOfActions)
-                    : 0
-                }
-                onChange={(value) => {
-                  console.log(action2);
-                  setAction2(value);
-                }}
-              />
-              <div id="timeline">
-                <div id="backToLive" onClick={backToLive}>
+        </div>
+        {match && (
+          <>
+            <div id="timeline">
+              <div id="liveInfo">
+                <div
+                  id="backToLive"
+                  onClick={() => getAction(totalNumberOfActions - 1)}
+                >
                   <img
                     src={live}
                     alt="live"
@@ -113,14 +101,23 @@ const Map2D = (): JSX.Element => {
                   {streamLive ? <>You are watching live</> : <>Back to live</>}
                 </div>
               </div>
-              <div id="matchInfo">
-                <div>{JSON.stringify(queue[action])}</div>
-              </div>
-            </>
-          )}
-        </div>
+              <Slider
+                totalActions={totalNumberOfActions - 1}
+                currentAction={
+                  started
+                    ? Math.min(queue[action].index, totalNumberOfActions - 1)
+                    : 0
+                }
+                onChange={getAction}
+              />
+            </div>
+            <div id="matchInfo">
+              <div>{JSON.stringify(queue[action])}</div>
+            </div>
+          </>
+        )}
       </div>
-    </>
+    </div>
   );
 };
 
