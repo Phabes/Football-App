@@ -4,7 +4,7 @@ import { Action } from "../model/Action";
 export const getSpecificAction = async (
   socketID: string,
   actionIndex: number
-): Promise<Action> => {
+): Promise<{ action: Action; totalNumberOfActions: number }> => {
   const requestOptions = {
     method: "POST",
     headers: { "Content-Type": "application/json" },

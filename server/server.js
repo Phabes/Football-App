@@ -174,7 +174,8 @@ app.post("/user", (req, res) => {
     socket,
   ]);
   res.status(200).json({
-    ...match.actions[actionIndex],
+    action: match.actions[actionIndex],
+    totalNumberOfActions: match.actions.length,
   });
 });
 

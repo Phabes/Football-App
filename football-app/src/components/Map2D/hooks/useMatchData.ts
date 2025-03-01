@@ -15,8 +15,10 @@ export const useMatchData = () => {
 
   const getAction = async (value: number) => {
     const data = await getSpecificAction(socketID, value);
-    setAction(0);
-    setQueue([data]);
+    const length = queue.length;
+    setTotalNumberOfActions(data.totalNumberOfActions);
+    setQueue((prev) => [...prev, data.action]);
+    setAction(length);
   };
 
   useEffect(() => {
@@ -64,5 +66,12 @@ export const useMatchData = () => {
     };
   }, []);
 
-  return { match, queue, totalNumberOfActions, action, setAction, getAction };
+  return {
+    match,
+    queue,
+    totalNumberOfActions,
+    action,
+    setAction,
+    getAction,
+  };
 };
